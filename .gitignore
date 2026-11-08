@@ -1,0 +1,14 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+.tools/
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+# Personal runtime data belongs only in the OS application-data directory.
+prompt-history.json
+habits.json
+window-position.json

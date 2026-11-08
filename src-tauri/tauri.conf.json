@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Little Helper",
+  "version": "0.0.1",
+  "identifier": "com.sonya9794.little-helper",
+  "build": {
+    "beforeDevCommand": "npm run web:dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run web:build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "windows": [
+      { "label": "mascot", "create": false, "title": "Little Helper", "width": 128, "height": 128, "visible": false, "decorations": false, "transparent": true, "shadow": false, "resizable": false, "alwaysOnTop": true, "skipTaskbar": true },
+      { "label": "panel", "create": false, "title": "Little Helper", "url": "index.html?panel", "width": 360, "height": 490, "minWidth": 300, "minHeight": 320, "visible": false, "resizable": true, "alwaysOnTop": true, "skipTaskbar": true }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'",
+      "devCsp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost http://127.0.0.1:1420 ws://127.0.0.1:1420; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    }
+  },
+  "bundle": { "active": false, "icon": ["icons/icon.ico", "icons/icon.png"] }
+}

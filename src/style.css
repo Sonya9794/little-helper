@@ -1,0 +1,34 @@
+:root { font-family: system-ui, sans-serif; color: #243d4c; background: transparent; font-size: 14px; color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+body.mascot, .mascot #app { width: 100vw; height: 100vh; overflow: hidden; background: transparent; user-select: none; }
+.mascot canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+.mascot canvas:active { cursor: grabbing; }
+body.panel { background: #faf8f2; }
+.panel #app { padding: 16px; }
+header { display: flex; gap: 8px; align-items: start; justify-content: space-between; margin-bottom: 14px; }
+h1 { font-size: 19px; margin: 0; } h2 { font-size: 16px; margin: 14px 0 10px; }
+p { line-height: 1.45; } .muted { color: #526570; font-size: 12px; margin: 5px 0 10px; }
+button, input, textarea { font: inherit; }
+button { padding: 7px 10px; border: 1px solid #8b9d9f; border-radius: 6px; background: #fff; color: #243d4c; cursor: pointer; min-height: 32px; }
+button:hover:not(:disabled) { background: #eaf2ed; border-color: #327d68; }
+button:disabled { opacity: .45; cursor: default; }
+:focus-visible { outline: 3px solid #2464b0; outline-offset: 2px; }
+input[type=text], textarea { width: 100%; padding: 8px; border: 1px solid #8b9d9f; border-radius: 5px; background: white; color: #243d4c; }
+textarea { resize: vertical; min-height: 100px; }
+label { display: block; margin: 9px 0; } form > button { margin: 4px 6px 8px 0; }
+.menu { display: grid; gap: 8px; }
+.menu h2 { margin-top: 0; }.prompt-choice { display: grid; text-align: left; gap: 4px; }
+.prompt-text { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 90px; overflow: auto; }
+.error { color: #822c20; background: #fff0e9; border: 1px solid #e4ad99; border-radius: 5px; padding: 9px; overflow-wrap: anywhere; font-size: 12px; }
+.status { color: #245b40; }
+.habits { list-style: none; padding: 0; margin: 0; }
+.habits li { padding: 10px 0; border-bottom: 1px solid #d6ddd7; }
+.habit-line { display: flex; align-items: center; gap: 8px; }
+.habit-line input[type=checkbox] { width: 19px; height: 19px; flex: 0 0 auto; accent-color: #327d68; }
+.habit-line .habit-name { min-width: 0; font-size: 13px; }
+.habit-controls { display: flex; gap: 6px; padding: 6px 0 0 27px; }
+.habit-controls button { padding: 3px 9px; min-height: 28px; font-size: 12px; }
+.confirmation { padding: 8px; background: #fff0e9; }
+.confirmation button { margin-right: 5px; }
+.add-habit { margin: 12px 0; }

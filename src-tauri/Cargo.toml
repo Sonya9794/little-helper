@@ -1,0 +1,20 @@
+[package]
+name = "little-helper"
+version = "0.0.1"
+edition = "2021"
+description = "Offline desktop mascot, local prompt history, and daily habits"
+
+[lib]
+name = "little_helper_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2.12", features = ["tray-icon", "macos-private-api"] }
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+tempfile = "3"

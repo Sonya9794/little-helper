@@ -1,5 +1,7 @@
 # Little Helper 0.0.1
 
+Motivational on-screen "pet"
+
 An offline Windows desktop mascot with local prompt history and an editable daily habit checklist. The temporary seed-bot artwork is original and replaceable. No AI service, provider SDK, OAuth, telemetry, shell execution, browser access, or computer-control capability is included in the application.
 
 **License decision pending. No software license has been selected or granted.** Public source availability is not an open-source license grant.

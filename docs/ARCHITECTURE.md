@@ -30,7 +30,11 @@ The separate panel is an ordinary small window that can receive keyboard/text in
 
 Native state is registered before explicitly creating either WebView. The frontend waits for a native startup-ready gate before sending storage/render commands, since WebView2 can pump IPC during window construction. Initial position moves are not persisted until restoration is complete.
 
-## Storage and dates
+## Rounded choices, page navigation, storage and dates
+The choices overlay is one additional compact transparent WebView (`src/choices.ts`), with Canvas-drawn pill backgrounds and accessible HTML buttons. `src/scene.ts` obtains physical client dimensions from Rust and submits the exact painted alpha mask. Transparent gaps, including the mascot-sized middle, are excluded from the native region. `src/choice-layout.ts` lays choices around the mascot or gathers them beside it near screen edges. The original mascot window stays small. Dragging, details, Escape, and tray minimization dismiss the choices. macOS retains its ordinary panel menu while its native mascot input adapter is pending.
+
+`src-tauri/src/choices.rs` owns transient page requests and choice-window placement. Page requests are retained until consumed, so opening a page does not depend on an event listener winning a startup race. Before placing/showing a detail window, its minimized state is restored; merely showing a minimized HWND leaves its content at off-screen icon coordinates with zero client size. The Motivation list and random selection are isolated in `src/motivation.ts`; quotes never reach the prompt-submission handler or persistence modules.
+
 
 History and habits are separate versioned JSON files in Tauri's per-user app-data directory. Human-readable original prompt text is preserved. Submission order is authoritative for latest use and frequency tie-breaking, even when the wall clock moves backward. Counts are over the retained 100-record window. Stable monotonically increasing integer IDs are persisted and never reassigned during reorder/delete.
 

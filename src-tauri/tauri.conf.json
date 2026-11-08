@@ -12,6 +12,7 @@
   "app": {
     "macOSPrivateApi": true,
     "windows": [
+      { "label": "choices", "create": false, "title": "Little Helper choices", "width": 552, "height": 330, "visible": false, "decorations": false, "transparent": true, "shadow": false, "resizable": false, "alwaysOnTop": true, "skipTaskbar": true },
       { "label": "mascot", "create": false, "title": "Little Helper", "width": 128, "height": 128, "visible": false, "decorations": false, "transparent": true, "shadow": false, "resizable": false, "alwaysOnTop": true, "skipTaskbar": true },
       { "label": "panel", "create": false, "title": "Little Helper", "url": "index.html?panel", "width": 360, "height": 490, "minWidth": 300, "minHeight": 320, "visible": false, "resizable": true, "alwaysOnTop": true, "skipTaskbar": true }
     ],

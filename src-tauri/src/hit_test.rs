@@ -29,8 +29,8 @@ pub fn install(
 ) -> Result<Option<String>> {
     if width == 0
         || height == 0
-        || width > 1024
-        || height > 1024
+        || width > 4096
+        || height > 4096
         || alpha.len() != (width * height) as usize
     {
         return Err("Invalid mascot alpha mask dimensions.".into());

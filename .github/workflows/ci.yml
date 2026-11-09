@@ -28,7 +28,7 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: little-helper-windows-0.0.1
+          name: little-helper-windows-0.0.2
           path: src-tauri/target/release/little-helper.exe
           if-no-files-found: error
           retention-days: 7
@@ -36,7 +36,7 @@ jobs:
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
-          name: little-helper-macos-0.0.1
+          name: little-helper-macos-0.0.2
           path: src-tauri/target/release/little-helper
           if-no-files-found: error
           retention-days: 7

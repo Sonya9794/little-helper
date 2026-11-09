@@ -147,6 +147,10 @@ pub fn show_panel(app: &AppHandle) -> Result<()> {
     if app.state::<AppState>().minimized.load(Ordering::SeqCst) {
         return Ok(());
     }
+    // Show alone leaves a minimized HWND at its off-screen icon coordinates.
+    if let Some(panel) = app.get_webview_window("panel") {
+        crate::choices::restore_window(&panel)?;
+    }
     anchor(app)?;
     let panel = app
         .get_webview_window("panel")

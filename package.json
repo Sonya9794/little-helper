@@ -1,6 +1,6 @@
 {
   "name": "little-helper",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "web:dev": "vite --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
     "web:build": "npm run typecheck && vite build",
-    "test": "cargo test --locked --manifest-path src-tauri/Cargo.toml",
+    "test": "node --test tests/*.test.mjs && cargo test --locked --manifest-path src-tauri/Cargo.toml",
     "check": "npm run typecheck && cargo fmt --manifest-path src-tauri/Cargo.toml --check && cargo check --locked --manifest-path src-tauri/Cargo.toml && npm test",
     "build": "tauri build --no-bundle",
     "tauri": "tauri"

@@ -4,10 +4,16 @@ use tauri::{
     image::Image,
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
-    AppHandle, Manager,
+    AppHandle, Emitter, Manager,
 };
 
 pub fn hide(app: &AppHandle) {
+    app.state::<AppState>()
+        .motion_hovered
+        .store(false, Ordering::SeqCst);
+    if let Err(e) = crate::choices::hide(app) {
+        crate::report(app, e);
+    }
     if let Err(error) = overlay::save(app) {
         crate::report(app, error);
     }
@@ -27,6 +33,12 @@ pub fn show(app: &AppHandle) {
         return;
     };
     state.minimized.store(false, Ordering::SeqCst);
+    state.motion_hovered.store(false, Ordering::SeqCst);
+    if let Some(window) = app.get_webview_window("mascot") {
+        if let Err(e) = crate::choices::restore_window(&window) {
+            crate::report(app, e);
+        }
+    }
     if let Err(error) = overlay::restore(app) {
         crate::report(app, error);
     }
@@ -35,6 +47,8 @@ pub fn show(app: &AppHandle) {
             if let Err(e) = window.show() {
                 crate::report(app, e.to_string());
             }
+        } else if let Err(e) = window.emit("mask-refresh", ()) {
+            crate::report(app, e.to_string());
         }
     }
     // Also checks local date when restoring, including after sleep or clock changes.

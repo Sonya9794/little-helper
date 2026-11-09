@@ -4,6 +4,7 @@ body { margin: 0; }
 body.mascot, .mascot #app { width: 100vw; height: 100vh; overflow: hidden; background: transparent; user-select: none; }
 .mascot canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
 .mascot canvas:active { cursor: grabbing; }
+.mascot canvas:focus-visible { outline: none; filter: brightness(1.12); }
 body.panel { background: #faf8f2; }
 .panel #app { padding: 16px; }
 header { display: flex; gap: 8px; align-items: start; justify-content: space-between; margin-bottom: 14px; }
@@ -32,3 +33,15 @@ label { display: block; margin: 9px 0; } form > button { margin: 4px 6px 8px 0; 
 .confirmation { padding: 8px; background: #fff0e9; }
 .confirmation button { margin-right: 5px; }
 .add-habit { margin: 12px 0; }
+body.choices, .choices #app { width: 100vw; height: 100vh; overflow: hidden; background: transparent; user-select: none; }
+.choices #app { position: relative; }
+.choices canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.round-choice { position: absolute; margin: 0; padding: 0 16px; min-height: 0; border: 0; border-radius: 999px; background: transparent; color: #243d4c; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.round-choice:hover:not(:disabled) { background: #327d6814; border: 0; }
+.round-choice:focus-visible { outline: none; box-shadow: inset 0 0 0 3px #2464b0; }
+.round-choice:disabled { opacity: 1; }
+.saved-text { max-height: none; }
+.quote { font-size: 23px; line-height: 1.45; margin: 24px 0; padding-left: 16px; border-left: 4px solid #327d68; }
+.mode-section { border-top: 1px solid #d6ddd7; margin-top: 14px; padding-top: 4px; }
+.mode-slider { display: flex; align-items: center; gap: 12px; }
+.mode-slider input { flex: 1; min-width: 0; min-height: 32px; accent-color: #327d68; cursor: pointer; }

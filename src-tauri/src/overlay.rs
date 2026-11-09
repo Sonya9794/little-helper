@@ -12,7 +12,7 @@ struct SavedPosition {
     y: i32,
 }
 
-fn reachable(
+pub(crate) fn reachable(
     window: &WebviewWindow,
     point: PhysicalPosition<i32>,
     size: PhysicalSize<u32>,
@@ -109,11 +109,14 @@ fn fitting_content(
     )
 }
 pub fn anchor(app: &AppHandle) -> Result<()> {
+    anchor_window(app, "panel")
+}
+pub fn anchor_window(app: &AppHandle, label: &str) -> Result<()> {
     let mascot = app
         .get_webview_window("mascot")
         .ok_or("Mascot window missing")?;
     let panel = app
-        .get_webview_window("panel")
+        .get_webview_window(label)
         .ok_or("Panel window missing")?;
     let p = mascot.outer_position().map_err(|e| e.to_string())?;
     let ms = mascot.outer_size().map_err(|e| e.to_string())?;

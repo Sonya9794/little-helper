@@ -3,6 +3,8 @@ import { invoke, el } from './api';
 import { paintScene } from './scene';
 import { MascotHover } from './mascot-hover';
 import { MascotReaction } from './mascot-reaction';
+import { ChessMascot } from './chess-mascot';
+import type { ReactionKind } from './chess-api';
 
 // Rendering contract: draw the replaceable artwork, then send precisely its rendered
 // physical-pixel alpha values to the native input-shape adapter on every animation frame.
@@ -17,6 +19,7 @@ export async function mascot(root: HTMLElement): Promise<void> {
   const angryImage = new Image(); angryImage.src = '/mascot-angry.svg'; await angryImage.decode();
   const hover = new MascotHover();
   const reaction = new MascotReaction();
+  const chessReaction = new ChessMascot();
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   let animationFrame = 0;
   let reactionTimer: ReturnType<typeof setTimeout> | undefined;
@@ -33,13 +36,15 @@ export async function mascot(root: HTMLElement): Promise<void> {
         const frame = hover.frame(now);
         const response = reaction.frame(now, reducedMotion.matches);
         const reacting = response.pose !== 'idle';
-        moving = response.pose === 'shaking' || (!reacting && frame.moving);
-        nextChange = response.pose === 'staring' ? response.until : 0;
-        const artwork = response.pose === 'staring' ? (response.angry ? angryImage : staringImage) : response.pose === 'shaking' || frame.excited ? excitedImage : image;
+        const chess = chessReaction.frame(now, reducedMotion.matches);
+        moving = chess.active ? chess.moving : response.pose === 'shaking' || (!reacting && frame.moving);
+        nextChange = chess.active ? chess.until : response.pose === 'staring' ? response.until : 0;
+        const artwork = chess.active ? ({ excited: excitedImage, staring: staringImage, angry: angryImage }[chess.art])
+          : response.pose === 'staring' ? (response.angry ? angryImage : staringImage) : response.pose === 'shaking' || frame.excited ? excitedImage : image;
         ctx.save();
-        ctx.translate(metrics.width / 2 + response.x * metrics.width / 128,
-          metrics.height / 2 + (reacting ? response.y : frame.offset) * metrics.height / 128);
-        ctx.rotate(response.rotation); ctx.scale(response.scale, response.scale);
+        ctx.translate(metrics.width / 2 + (chess.active ? 0 : response.x) * metrics.width / 128,
+          metrics.height / 2 + (chess.active ? chess.y : reacting ? response.y : frame.offset) * metrics.height / 128);
+        ctx.rotate(chess.active ? 0 : response.rotation); ctx.scale(chess.active ? chess.scale : response.scale, chess.active ? chess.scale : response.scale);
         ctx.drawImage(artwork, -metrics.width / 2, -metrics.height / 2, metrics.width, metrics.height);
         ctx.restore();
       });
@@ -56,6 +61,10 @@ export async function mascot(root: HTMLElement): Promise<void> {
     }
   }
   await listen('mask-refresh', () => { void draw(); });
+  await listen<{ kind: ReactionKind; energy: number }>('chess-reaction', event => {
+    hover.reset(); reaction.reset(); chessReaction.start(event.payload.kind, event.payload.energy, performance.now()); void draw();
+  });
+  await listen('chess-reaction-reset', () => { chessReaction.reset(); void draw(); });
   window.addEventListener('resize', () => { void draw(); });
   let press: { x: number; y: number; dragged: boolean } | null = null;
   const setHovered = (hovered: boolean) => {
@@ -75,6 +84,7 @@ export async function mascot(root: HTMLElement): Promise<void> {
   canvas.onpointerdown = event => {
     if (event.button !== 0) return;
     reaction.reset();
+    chessReaction.reset();
     hover.activate(); void draw();
     suppressClick = false;
     press = { x: event.screenX, y: event.screenY, dragged: false };

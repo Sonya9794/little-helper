@@ -40,8 +40,72 @@ body.choices, .choices #app { width: 100vw; height: 100vh; overflow: hidden; bac
 .round-choice:hover:not(:disabled) { background: #327d6814; border: 0; }
 .round-choice:focus-visible { outline: none; box-shadow: inset 0 0 0 3px #2464b0; }
 .round-choice:disabled { opacity: 1; }
+.round-choice { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.choice-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.choice-arrow { flex: none; font-size: 17px; }
 .saved-text { max-height: none; }
 .quote { font-size: 23px; line-height: 1.45; margin: 24px 0; padding-left: 16px; border-left: 4px solid #327d68; }
 .mode-section { border-top: 1px solid #d6ddd7; margin-top: 14px; padding-top: 4px; }
 .mode-slider { display: flex; align-items: center; gap: 12px; }
 .mode-slider input { flex: 1; min-width: 0; min-height: 32px; accent-color: #327d68; cursor: pointer; }
+.rating-modes { display: flex; gap: 12px; border: 0; padding: 0; margin: 12px 0; }
+.rating-modes label { display: flex; flex: 1; align-items: center; justify-content: center; gap: 8px; border: 1px solid #8b9d9f; border-radius: 10px; padding: 10px; cursor: pointer; }
+.rating-modes label:has(input:checked) { border: 2px solid #327d68; background: #eaf2ed; }
+input[type=number], select { font: inherit; padding: 8px; border: 1px solid #8b9d9f; border-radius: 6px; background: white; color: #243d4c; width: 100%; min-height: 36px; }
+.chess-settings { border-top: 1px solid #d6ddd7; margin-top: 20px; }
+body.chess { background: #faf8f2; }
+.chess #app { max-width: 1180px; margin: 0 auto; padding: 20px; }
+.chess h2 { margin: 12px 0; font-size: 20px; }
+.chess h3 { font-size: 16px; margin: 12px 0 8px; }
+.chess button { margin: 4px 6px 4px 0; }
+.chess-setup { max-width: 620px; margin: 12px auto; }
+.setup-difficulty { padding: 12px 18px; background: #eaf2ed; border-radius: 14px; margin: 18px 0; }
+.chess-setup fieldset { display: flex; gap: 24px; border: 1px solid #d6ddd7; border-radius: 10px; margin: 18px 0; }
+.chess-setup fieldset label { display: flex; gap: 8px; align-items: center; }
+.timer-options { display: flex; align-items: end; gap: 18px; }
+.timer-options label { flex: 1; }
+.chess-setup input[type=range] { display: block; width: 100%; accent-color: #327d68; min-height: 32px; }
+.chess-setup output { display: block; color: #526570; font-size: 13px; }
+.chess-setup form > label { margin: 22px 0; }
+.game-layout { display: grid; grid-template-columns: minmax(320px, 580px) minmax(200px, 1fr); gap: 24px; align-items: start; }
+.chess-board { display: grid; grid-template-columns: repeat(8, 1fr); aspect-ratio: 1; width: 100%; border: 3px solid #243d4c; border-radius: 5px; overflow: hidden; }
+.chess-board { max-width: calc(100vh - 180px); }
+.chess .chess-square { aspect-ratio: 1; min-height: 0; min-width: 0; position: relative; border: 0; border-radius: 0; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; }
+.chess-square.light { background: #f4eddc; }.chess-square.dark { background: #86aa93; }
+.chess .chess-square:hover { background: #c5d8b2; }.chess-square.selected { box-shadow: inset 0 0 0 4px #2464b0; }
+.chess-square.last-move { background-image: linear-gradient(#ffde6755, #ffde6755); }
+.chess-square.legal::after { content: ''; position: absolute; width: 22%; height: 22%; background: #243d4c66; border-radius: 50%; pointer-events: none; }
+.chess-square.in-check { background: #e18e76; }
+.chess-square:focus-visible { outline: none; box-shadow: inset 0 0 0 4px #2464b0; z-index: 1; }
+.piece { font: clamp(24px, 5.5vw, 58px) 'Segoe UI Symbol', 'Apple Symbols', serif; line-height: 1; pointer-events: none; }
+.piece-w { color: #fffdf5; text-shadow: 1px 1px #243d4c, -1px -1px #243d4c, -1px 1px #243d4c, 1px -1px #243d4c; }
+.piece-b { color: #172b36; }
+.square-coordinate { position: absolute; bottom: 2px; left: 3px; font-size: 10px; color: #243d4c; pointer-events: none; }
+.chess-clocks { display: flex; gap: 12px; margin: 12px 0; }.chess-clocks div { flex: 1; padding: 10px; border-radius: 8px; background: #e6e8e1; font-variant-numeric: tabular-nums; }
+.chess-clocks .active-clock { background: #d9f4e3; box-shadow: inset 0 0 0 2px #327d68; }
+.helper-comment { display: flex; gap: 12px; align-items: center; padding: 12px; background: white; border: 1px solid #d6ddd7; border-radius: 12px; min-height: 88px; }
+.helper-comment img { width: 60px; height: 60px; }.helper-comment p { margin: 0; }
+.move-log { max-height: 230px; overflow: auto; padding-left: 32px; font-variant-numeric: tabular-nums; }.move-log li { padding: 4px; white-space: pre-wrap; }
+.promotion, .chess-confirmation { border: 2px solid #327d68; padding: 14px; margin: 16px 0; background: #fffdf5; border-radius: 12px; }
+.chess-confirmation { position: fixed; inset: auto 20px 20px; max-width: 650px; margin: auto; z-index: 3; box-shadow: 0 4px 32px #243d4c44; }
+.game-log { padding: 14px 0; border-bottom: 1px solid #d6ddd7; }.pgn-log { padding: 16px; background: white; white-space: pre-wrap; overflow-wrap: anywhere; border-radius: 8px; max-height: 400px; overflow: auto; }
+@media (max-width: 760px) { .game-layout { grid-template-columns: 1fr; }.game-sidebar { display: grid; gap: 8px; }.piece { font-size: 7vw; }.timer-options { flex-wrap: wrap; } }
+.visually-hidden { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+body.todo { background:#faf8f2; }.todo #app { padding:16px; }.todo h1 { font-size:20px; }
+.todo-table-wrap { overflow-x:auto; }.todo-table { width:100%; min-width:600px; border-collapse:separate; border-spacing:0 5px; table-layout:fixed; }
+.todo-table th { text-align:left; font-size:13px; padding:7px; }.todo-table th:first-child { width:34px; }.todo-table th:nth-child(3) { width:176px; }.todo-table th:nth-child(4) { width:136px; }
+.todo-table td { padding:8px 6px; vertical-align:top; color:var(--todo-ink); }.todo-table td:first-child { border-radius:8px 0 0 8px; }.todo-table td:last-child { border-radius:0 8px 8px 0; }
+.todo-table input:not([type=checkbox]) { width:100%; min-width:0; padding:5px; min-height:30px; border:1px solid currentColor; border-radius:4px; color:inherit; background:transparent; font:inherit; font-size:12px; }
+.todo-table input::placeholder { color:inherit; opacity:.65; }.todo-table input:focus-visible { outline-color:var(--todo-ink); }.todo-table input[type=checkbox] { margin-top:8px; width:17px; height:17px; accent-color:#327d68; }
+.todo-table .dark-row input { color-scheme:dark; }
+.todo-table .task-complete .todo-task-name { text-decoration:line-through; }
+.todo-row-tools { display:flex; gap:6px; margin-top:5px; }.todo-row-tools button { display:flex; align-items:center; gap:5px; min-height:24px; padding:3px 6px; font-size:11px; color:inherit; background:transparent; border-color:currentColor; }
+.todo-color-sample { width:12px; height:12px; border-radius:50%; border:1px solid currentColor; }
+.todo-duration { display:flex; gap:6px; }.todo-duration label { display:flex; flex:1; min-width:0; align-items:center; gap:3px; margin:0; font-size:11px; }.todo-duration input { width:44px; }
+.todo-add { display:flex; gap:12px; align-items:end; margin-top:16px; }.todo-add label { flex:1; margin:0; }.todo-add button { margin-bottom:0; }
+.todo-color-picker { max-width:360px; width:calc(100% - 32px); max-height:calc(100vh - 32px); overflow:auto; border:1px solid #8b9d9f; border-radius:14px; padding:18px; color:#243d4c; background:#faf8f2; }
+.todo-color-picker::backdrop { background:#243d4c55; }.todo-color-picker h2 { margin:0 0 12px; }.todo-color-picker h3 { margin:16px 0 8px; font-size:14px; }
+.todo-color-picker summary { cursor:pointer; font-size:13px; margin:14px 0 8px; }
+.todo-palette { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }.todo-palette button { height:30px; min-height:30px; padding:0; border:1px solid #8b9d9f; border-radius:6px; }.todo-palette button[aria-pressed=true] { box-shadow:0 0 0 2px #2464b0; }
+.todo-wheel-area { position:relative; width:180px; height:180px; margin:12px auto; }.todo-color-wheel { border-radius:50%; display:block; touch-action:none; cursor:crosshair; }.todo-wheel-marker { position:absolute; width:10px; height:10px; border:2px solid white; box-shadow:0 0 0 1px black; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; }
+.todo-color-picker label { font-size:12px; }.todo-color-picker input[type=range] { width:100%; display:block; accent-color:#327d68; }.todo-color-picker form button { margin-right:8px; }.todo-color-preview { padding:10px; border:1px solid #8b9d9f; border-radius:6px; margin:10px 0; }

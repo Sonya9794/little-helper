@@ -4,7 +4,7 @@ This updates the first-menu steps in WINDOWS-ACCEPTANCE.md. The storage, daily r
 
 - Click a visible mascot pixel once: rounded choices appear around it, with no rectangular background. Click again or press Escape to dismiss them.
 - Hover over a visible mascot pixel: one quick hop (about 280 ms), with `> <` eyes and no mouth. The excited face stays while hovering after landing; leaving restores the normal face, and clicking clears excitement immediately. Check that resting on an edge does not trigger repeated hops, and dragging still works. With Windows animation/reduced-motion preferences enabled, only the expression changes. During the hop, transparent pixels must still pass input through.
-- With empty history, Other…, Habit Tracker, and Motivation appear. Other… opens a normal-sized visible text-entry panel and explains how to save the first prompt. It must not appear minimized or at off-screen icon coordinates.
+- With empty history, Settings, Lock In →, and Play Chess Game appear. Lock In replaces main actions with Habit Tracker, Motivation, To-Do List, and ← Back. Settings opens a normal-sized visible panel for prompt entry, Mode, and Chess difficulty. It must not appear minimized or at off-screen icon coordinates.
 - Save a prompt. The two saved-prompt choices now show actual prompt text, not category labels. Selecting either appends one use and opens the full saved text. Verify updated latest/frequency values by saving different prompts; ties still favor the most recent use.
 - Choose Habit Tracker: the full checklist panel appears. Check editing/keyboard controls using the main acceptance checklist. Back to choices and Close tracker return to the rounded choices.
 - Choose Motivation: a quote appears. Another quote selects from the same list of 20; a repeat is valid. Verify prompt-history and habits files are unchanged by quote selection.
@@ -20,7 +20,7 @@ Automated tests: `npm test` runs Node's built-in tests for the 20-quote list and
 
 ## Normal/DVD mode
 
-- Open Other… and find Mode below the prompt form. Tab to its two-stop slider and use arrows/Home/End to select Normal/DVD. Its accessible value should read Normal or DVD. Type a prompt draft first and verify switching modes preserves it without saving it to history.
+- Open Settings and find Mode below the prompt form. Tab to its two-stop slider and use arrows/Home/End to select Normal/DVD. Its accessible value should read Normal or DVD. Type a prompt draft first and verify switching modes preserves it without saving it to history.
 - Select DVD, close the panel/choices, and move the pointer away: the mascot glides diagonally around the current monitor and reflects off all four usable edges. The taskbar remains clear. A corner hit reverses both axes. Transparent pixels still pass through while moving.
 - Hover the mascot: it pauses so you can click or shake it. Move away: it resumes. Choices, detail pages, and the right-click menu must pause it, with no drifting panels or reset clicks required.
 - Drag in DVD mode and release, including releasing outside the mascot: it must not fight the drag or stay stuck afterward. Drag to another monitor and check it continues within that monitor's work area. Change monitor arrangements or wake from sleep: it stays reachable and does not teleport to catch up.

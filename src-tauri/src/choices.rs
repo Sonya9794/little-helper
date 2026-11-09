@@ -14,6 +14,28 @@ pub enum Page {
     Saved,
     Habits,
     Motivation,
+    LockIn,
+}
+#[derive(Clone, Copy, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Group {
+    #[default]
+    Main,
+    LockIn,
+}
+pub fn group(app: &AppHandle) -> Result<Group> {
+    app.state::<AppState>()
+        .choices_group
+        .lock()
+        .map(|group| *group)
+        .map_err(|_| "Menu state lock failed".into())
+}
+pub fn select_group(app: &AppHandle, group: Group) -> Result<()> {
+    *app.state::<AppState>()
+        .choices_group
+        .lock()
+        .map_err(|_| "Menu state lock failed")? = group;
+    show(app)
 }
 #[derive(Clone, Default, Serialize)]
 pub struct Request {
@@ -54,6 +76,15 @@ pub fn hide(app: &AppHandle) -> Result<()> {
 pub fn detail(app: &AppHandle, page: Page, text: Option<String>) -> Result<()> {
     hide(app)?;
     let state = app.state::<AppState>();
+    *state
+        .choices_group
+        .lock()
+        .map_err(|_| "Menu state lock failed")? =
+        if matches!(page, Page::Habits | Page::Motivation | Page::LockIn) {
+            Group::LockIn
+        } else {
+            Group::Main
+        };
     let request = {
         let mut request = state
             .panel_request
@@ -72,6 +103,10 @@ pub fn toggle(app: &AppHandle) -> Result<()> {
     if app.state::<AppState>().choices_open.load(Ordering::SeqCst) {
         hide(app)
     } else {
+        *app.state::<AppState>()
+            .choices_group
+            .lock()
+            .map_err(|_| "Menu state lock failed")? = Group::Main;
         show(app)
     }
 }
@@ -81,10 +116,21 @@ pub fn show(app: &AppHandle) -> Result<()> {
     }
     #[cfg(not(target_os = "windows"))]
     {
-        detail(app, Page::Menu, None)
+        detail(
+            app,
+            if group(app)? == Group::LockIn {
+                Page::LockIn
+            } else {
+                Page::Menu
+            },
+            None,
+        )
     }
     #[cfg(target_os = "windows")]
     {
+        if let Some(todo) = app.get_webview_window("todo") {
+            todo.hide().map_err(|e| e.to_string())?;
+        }
         app.get_webview_window("panel")
             .ok_or("Panel window missing")?
             .hide()

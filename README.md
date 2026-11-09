@@ -1,4 +1,4 @@
-# Little Helper 0.0.1
+# Little Helper 0.0.2
 
 Motivational on-screen "pet"
 
@@ -30,7 +30,7 @@ npm run typecheck
 cargo fmt --manifest-path src-tauri/Cargo.toml --check
 # Rust compile check
 cargo check --locked --manifest-path src-tauri/Cargo.toml
-# Focused Rust unit tests (history, habits, atomic storage, alpha mask)
+# Frontend interaction/geometry tests and Rust storage/window/motion tests
 npm test
 # All routine checks
 npm run check
@@ -47,6 +47,14 @@ CI runs type checking, Rust formatting, checks, tests, and a release build on Wi
 Click an opaque mascot pixel to open the rounded choices, then select a page to open its detail panel. Drag with the left button by at least four CSS pixels to move the mascot. Only nonzero-alpha mascot pixels receive input on Windows, including anti-aliased edges. Transparent gaps click through to other applications. The mascot window is configured at 128 logical pixels square, frameless, transparent, and above normal windows. Position is saved after a short movement debounce, on tray minimization, and on Quit. Saved positions are clamped into the nearest available monitor work area on startup/restoration; the detail panel chooses a fitting side and is clamped as well.
 
 Click the mascot to toggle rounded choices around it. The first two choices show saved prompt text itself (the most-used and most-recent prompts), followed clockwise by `Other…`, `Habit Tracker`, and `Motivation`. Long labels have an ellipsis and a full-text tooltip. With empty history, the three available choices appear; Other… explains how to save the first prompt. Choosing a saved prompt records another local use and opens its full text. Nothing executes the prompt. Other… opens text entry; Ctrl+Enter (Command+Enter on macOS) also saves. Escape or Back to choices returns from details to the choices; Escape on the choices dismisses them. Near screen edges the choices gather on the side with room. Transparent gaps remain click-through, including the middle over the mascot. A compact transparent choices window is used, not a full-screen overlay.
+
+Hovering makes the mascot hop once for about 280 ms, with excited `> <` eyes and no mouth. The face stays excited while hovering after landing, then returns to normal on leaving or clicking. The four-pixel hop fits inside the artwork's transparent top margin, leaving the saved desktop position unchanged. Each frame updates the native alpha mask; moving edges have a short settling guard against repeated hops. Reduced-motion preferences keep the expression change and skip movement.
+
+Fast back-and-forth mouse movements or small circles over the mascot trigger a subtle two-pixel sideways shake. After movement stops (a 140 ms pause), it stares with large circular eyes and pupils, without a mouth, for one second. Clicks and drags clear the reaction. Detection uses only pointer events delivered to the mascot, with a short rolling movement window and speed/turn thresholds; it does not track the mouse globally. Reduced motion skips displacement while retaining the expression timing.
+
+Keep shaking continuously for more than two seconds to escalate to a stronger sideways and vertical shake with a small rotation. The artwork briefly scales to 90% to leave room inside the same small window; its saved desktop position stays unchanged. After stopping, the one-second stare uses inward-slanted eye tops for an angry expression. Separate bouts reset the two-second timer. Reduced motion suppresses displacement, rotation, and scaling, while keeping the expression change.
+
+Other… also contains a **Mode** slider with two stops: **Normal** and **DVD**. Normal keeps the mascot where you put it. DVD glides diagonally and bounces off the usable edges of its current monitor (excluding the taskbar/Dock); an exact corner hit reverses both directions. Hovering, dragging, open choices/detail panels, the context menu, and minimizing to tray pause movement. Close the interface and move away to resume. Dragging to another monitor continues there, and returning to Normal stops at the current position. The slider supports arrow keys, Home, and End, and changing it preserves an unsaved prompt draft. Mode is a session setting: every launch starts in Normal; no new settings file is created. Position is saved when switching back to Normal, minimizing, or quitting rather than on every DVD frame.
 
 Motivation opens one random entry from 20 original short encouragements bundled in `src/motivation.ts`. Another quote draws again; repeats are possible. Quotes never enter prompt history or habit storage, and no service is contacted. Future action names can replace saved-text labels independently of the layout; action execution is still not implemented. See [rounded-choice acceptance checks](docs/ROUNDED-CHOICES.md).
 
@@ -71,10 +79,10 @@ Writes use a flushed temporary file in the same directory and atomic replacement
 
 ## Replacing the mascot
 
-Replace `public/mascot.svg` (currently a 128×128 transparent SVG) or change the image source in `src/mascot.ts` to a local transparent PNG/WebP/GIF asset. Keep transparent pixels truly alpha-zero. The renderer uses the canvas's actual physical-pixel alpha buffer to regenerate the Windows region, including after DPI changes. It currently draws one static decoded frame; animated assets are static until an animation renderer is added. A future renderer must submit a fresh matching mask for each displayed frame. Window size and matching canvas bounds must be updated together if dimensions change. `scripts/generate-icons.mjs` regenerates the original temporary app icons with Node built-ins; it is development tooling, not an app capability.
+Replace `public/mascot.svg`, `public/mascot-excited.svg`, `public/mascot-staring.svg`, and `public/mascot-angry.svg` (128×128 transparent SVGs), or change their image sources in `src/mascot.ts` to local transparent PNG/WebP/GIF assets. Match their silhouettes and leave at least four transparent pixels above the artwork for the hop and two on either side for gentle shaking. Strong shaking scales the artwork to leave room for its larger transforms; recheck clipping bounds if replacing the silhouette. Keep transparent pixels truly alpha-zero. The renderer uses the canvas's actual physical-pixel alpha buffer to regenerate the Windows region, including after DPI changes and for every animation frame. Each asset supplies one decoded frame; sprite sheets and animated image playback are not implemented. A future renderer must submit a fresh matching mask for each displayed frame. Window size and matching canvas bounds must be updated together if dimensions change. `scripts/generate-icons.mjs` regenerates the original temporary app icons with Node built-ins; it is development tooling, not an app capability.
 
 ## Troubleshooting and validation
 
 If Cargo/linking fails, check the C++ workload and Windows SDK in Visual Studio Installer, then reopen the terminal. If npm is unavailable, install Node with npm and refresh PATH. If the executable does not open, verify WebView2 and inspect the tray/hidden-icons area for an existing instance. Storage errors include the affected local path. If the mascot becomes unreachable after a monitor change, choose Show from the tray, which clamps it into the current work area; after quitting you may also back up and move aside `window-position.json`.
 
-See [architecture](docs/ARCHITECTURE.md) and the [manual Windows acceptance checklist](docs/WINDOWS-ACCEPTANCE.md). Automated checks do not establish visual transparency, native cross-process click-through, tray behavior, mixed-DPI correctness, or macOS UI behavior. Complete the manual checklist before approving a `v0.0.1` tag. No tag or Release is created by this implementation.
+See [architecture](docs/ARCHITECTURE.md), the [manual Windows acceptance checklist](docs/WINDOWS-ACCEPTANCE.md), and the [interaction and DVD-mode checks](docs/ROUNDED-CHOICES.md). Automated checks do not establish visual transparency, native cross-process click-through, tray behavior, mixed-DPI correctness, or macOS UI behavior. Complete the manual checklists before approving a `v0.0.2` tag. No tag or Release is created by this implementation.

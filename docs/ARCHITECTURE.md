@@ -1,10 +1,13 @@
-# Architecture — 0.0.1
+# Architecture — 0.0.2
 
 The packaged application is offline. It contains no HTTP client, provider SDK, OAuth, API keys, telemetry, screen capture, browser-reading, shell, app-launching, or arbitrary file-operation commands. Build tools and CI download development dependencies; that is separate from runtime behavior. Only bundled UI assets and narrow local Tauri IPC commands are allowed by the production CSP. No remote content is loaded into the WebViews.
 
 | Responsibility | Location |
 | --- | --- |
-| Static mascot rendering, physical-pixel alpha extraction, click vs drag | `src/mascot.ts`, `public/mascot.svg` |
+| Mascot rendering, physical-pixel alpha extraction, click vs drag | `src/mascot.ts`, `public/mascot.svg`, `public/mascot-excited.svg` |
+| One-shot hover hop and expression state | `src/mascot-hover.ts` |
+| Local pointer-gesture detection, sustained-shake escalation and timed stare | `src/mascot-reaction.ts`, `public/mascot-staring.svg`, `public/mascot-angry.svg` |
+| Normal/DVD session mode, native window gliding, reflection physics and interaction pauses | `src-tauri/src/motion.rs`; slider in `src/panel.ts` |
 | Native geometry, nearest-monitor work-area clamping, panel anchoring, position persistence | `src-tauri/src/overlay.rs` |
 | Input shape abstraction and Windows GDI region adapter | `src-tauri/src/hit_test.rs` |
 | Main menu and prompt form | `src/panel.ts` |
@@ -46,6 +49,6 @@ Habits persist one local calendar date plus current flags. A date mismatch in ei
 
 `PromptSubmission` is the minimal future-facing interface. `LocalHistoryOnly` is its sole implementation. A later provider adapter could be wired at this boundary, keeping authentication, network transport, and provider execution separate from history calculations and UI. Provider responses, credentials, and execution status would need a deliberate interface revision, rather than being stored in the prompt-history module. No future provider or authentication scaffolding runs today.
 
-Any later computer actions will require explicit user permissions, scoped capabilities, and confirmation safeguards for consequential actions. Those capabilities and safeguards are not implemented in 0.0.1. The current app's fixed local-data persistence is not a general file-operation capability.
+Any later computer actions will require explicit user permissions, scoped capabilities, and confirmation safeguards for consequential actions. Those capabilities and safeguards are not implemented in 0.0.2. The current app's fixed local-data persistence is not a general file-operation capability.
 
 License decision pending; no license is selected.

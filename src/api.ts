@@ -1,5 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 export { invoke };
+export type Mode = 'normal' | 'dvd';
 export interface Summary { latest: string | null; most_common: string | null; count: number }
 export interface Habit { id: number; text: string; order: number; checked: boolean }
 export interface Habits { date: string; habits: Habit[] }

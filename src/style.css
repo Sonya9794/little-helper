@@ -42,3 +42,6 @@ body.choices, .choices #app { width: 100vw; height: 100vh; overflow: hidden; bac
 .round-choice:disabled { opacity: 1; }
 .saved-text { max-height: none; }
 .quote { font-size: 23px; line-height: 1.45; margin: 24px 0; padding-left: 16px; border-left: 4px solid #327d68; }
+.mode-section { border-top: 1px solid #d6ddd7; margin-top: 14px; padding-top: 4px; }
+.mode-slider { display: flex; align-items: center; gap: 12px; }
+.mode-slider input { flex: 1; min-width: 0; min-height: 32px; accent-color: #327d68; cursor: pointer; }

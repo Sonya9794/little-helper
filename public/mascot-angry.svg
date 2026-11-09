@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Original seed-bot: circular eyes clipped by inward-sloping upper edges. -->
+  <defs>
+    <clipPath id="eyes"><path d="M43 54L63 65V78H43ZM65 65L85 54V78H65Z"/></clipPath>
+  </defs>
+  <path d="M61 30V18Q43 20 42 6Q61 3 65 18Q70 4 88 8Q87 23 67 23V30" fill="#327d68" stroke="#243d4c" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M34 83L22 95M94 83L106 95" stroke="#243d4c" stroke-width="9" stroke-linecap="round"/>
+  <path d="M47 106V119H35M81 106V119H93" fill="none" stroke="#243d4c" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="29" y="30" width="70" height="78" rx="26" fill="#ffd077" stroke="#243d4c" stroke-width="4"/>
+  <rect x="39" y="46" width="50" height="37" rx="14" fill="#243d4c"/>
+  <g clip-path="url(#eyes)">
+    <g fill="#d9f4e3"><circle cx="53" cy="64" r="8.5"/><circle cx="75" cy="64" r="8.5"/></g>
+    <g fill="#243d4c"><circle cx="53" cy="64" r="3.5"/><circle cx="75" cy="64" r="3.5"/></g>
+  </g>
+  <circle cx="64" cy="94" r="4" fill="#327d68"/>
+</svg>

@@ -3,6 +3,7 @@ mod execution;
 mod habits;
 mod history;
 mod hit_test;
+mod motion;
 mod overlay;
 mod storage;
 mod tray;
@@ -29,6 +30,12 @@ pub(crate) struct AppState {
     choices_open: AtomicBool,
     panel_request: Mutex<choices::Request>,
     move_generation: AtomicU64,
+    dvd_enabled: AtomicBool,
+    motion_hovered: AtomicBool,
+    motion_dragging: AtomicBool,
+    motion_pending: AtomicBool,
+    motion_context: AtomicBool,
+    motion: Mutex<motion::Motion>,
 }
 pub(crate) fn report(app: &tauri::AppHandle, error: String) {
     if let Some(state) = app.try_state::<AppState>() {
@@ -53,6 +60,18 @@ fn startup_ready(app: tauri::AppHandle) -> bool {
     app.try_state::<AppState>()
         .map(|state| state.initialized.load(Ordering::SeqCst))
         .unwrap_or(false)
+}
+#[tauri::command]
+fn get_mode(state: tauri::State<'_, AppState>) -> motion::Mode {
+    motion::mode(&state)
+}
+#[tauri::command]
+fn set_mode(app: tauri::AppHandle, mode: motion::Mode) -> Result<()> {
+    motion::set_mode(&app, mode)
+}
+#[tauri::command]
+fn motion_hover(state: tauri::State<'_, AppState>, hovered: bool) {
+    state.motion_hovered.store(hovered, Ordering::SeqCst);
 }
 #[tauri::command]
 fn snapshot(state: tauri::State<'_, AppState>) -> Result<Snapshot> {
@@ -133,10 +152,7 @@ fn hide_panel(app: tauri::AppHandle) -> Result<()> {
 fn start_drag(app: tauri::AppHandle) -> Result<()> {
     choices::hide(&app)?;
     hide_panel(app.clone())?;
-    app.get_webview_window("mascot")
-        .ok_or("Mascot window missing")?
-        .start_dragging()
-        .map_err(|e| e.to_string())
+    motion::start_drag(&app)
 }
 #[tauri::command]
 fn context_menu(app: tauri::AppHandle) -> Result<()> {
@@ -144,10 +160,17 @@ fn context_menu(app: tauri::AppHandle) -> Result<()> {
         tauri::menu::MenuItem::with_id(&app, "minimize", "Minimize to tray", true, None::<&str>)
             .map_err(|e| e.to_string())?;
     let menu = tauri::menu::Menu::with_items(&app, &[&item]).map_err(|e| e.to_string())?;
-    app.get_webview_window("mascot")
-        .ok_or("Mascot window missing")?
-        .popup_menu(&menu)
-        .map_err(|e| e.to_string())
+    let window = app
+        .get_webview_window("mascot")
+        .ok_or("Mascot window missing")?;
+    app.state::<AppState>()
+        .motion_context
+        .store(true, Ordering::SeqCst);
+    let result = window.popup_menu(&menu).map_err(|e| e.to_string());
+    app.state::<AppState>()
+        .motion_context
+        .store(false, Ordering::SeqCst);
+    result
 }
 #[tauri::command]
 fn install_mask(
@@ -205,6 +228,12 @@ pub fn run() {
                 choices_open: AtomicBool::new(false),
                 panel_request: Mutex::new(choices::Request::default()),
                 move_generation: AtomicU64::new(0),
+                dvd_enabled: AtomicBool::new(false),
+                motion_hovered: AtomicBool::new(false),
+                motion_dragging: AtomicBool::new(false),
+                motion_pending: AtomicBool::new(false),
+                motion_context: AtomicBool::new(false),
+                motion: Mutex::new(motion::Motion::default()),
             });
             // WebViews can pump IPC during construction. Register state first,
             // explicitly create the windows, then release the UI startup gate.
@@ -227,6 +256,7 @@ pub fn run() {
                 report(app.handle(), e);
             }
             state.initialized.store(true, Ordering::SeqCst);
+            motion::install(app.handle());
             Ok(())
         })
         .on_menu_event(|app, event| {
@@ -250,6 +280,11 @@ pub fn run() {
             tauri::WindowEvent::Moved(_) if window.label() == "mascot" => {
                 if let Some(state) = window.app_handle().try_state::<AppState>() {
                     if !state.initialized.load(Ordering::SeqCst) {
+                        return;
+                    }
+                    // DVD ticks are transient; never spawn a save thread or write
+                    // personal storage for each animation frame. Save on stop/tray/quit.
+                    if state.dvd_enabled.load(Ordering::SeqCst) {
                         return;
                     }
                     let generation = state.move_generation.fetch_add(1, Ordering::SeqCst) + 1;
@@ -291,6 +326,9 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             startup_ready,
+            get_mode,
+            set_mode,
+            motion_hover,
             snapshot,
             submit_prompt,
             edit_habit,

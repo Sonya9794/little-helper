@@ -20,7 +20,7 @@ pub fn hide(app: &AppHandle) {
     app.state::<AppState>()
         .minimized
         .store(true, Ordering::SeqCst);
-    for label in ["mascot", "panel"] {
+    for label in ["mascot", "panel", "chess", "todo"] {
         if let Some(w) = app.get_webview_window(label) {
             if let Err(e) = w.hide() {
                 crate::report(app, e.to_string());
@@ -34,6 +34,11 @@ pub fn show(app: &AppHandle) {
     };
     state.minimized.store(false, Ordering::SeqCst);
     state.motion_hovered.store(false, Ordering::SeqCst);
+    if state.chess_active.load(Ordering::SeqCst) {
+        if let Some(window) = app.get_webview_window("chess") {
+            let _ = window.show();
+        }
+    }
     if let Some(window) = app.get_webview_window("mascot") {
         if let Err(e) = crate::choices::restore_window(&window) {
             crate::report(app, e);

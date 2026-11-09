@@ -1,3 +1,5 @@
+mod chess;
+mod chess_commands;
 mod choices;
 mod execution;
 mod habits;
@@ -6,6 +8,8 @@ mod hit_test;
 mod motion;
 mod overlay;
 mod storage;
+mod todo;
+mod todo_commands;
 mod tray;
 
 use execution::{LocalHistoryOnly, PromptSubmission};
@@ -13,7 +17,7 @@ use serde::Serialize;
 use std::{
     path::PathBuf,
     sync::{
-        atomic::{AtomicBool, AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicU64, AtomicU8, Ordering},
         Mutex,
     },
 };
@@ -28,6 +32,7 @@ pub(crate) struct AppState {
     mask_ready: AtomicBool,
     initialized: AtomicBool,
     choices_open: AtomicBool,
+    choices_group: Mutex<choices::Group>,
     panel_request: Mutex<choices::Request>,
     move_generation: AtomicU64,
     dvd_enabled: AtomicBool,
@@ -36,6 +41,9 @@ pub(crate) struct AppState {
     motion_pending: AtomicBool,
     motion_context: AtomicBool,
     motion: Mutex<motion::Motion>,
+    chess_active: AtomicBool,
+    chess_energy: AtomicU8,
+    chess_roam: Mutex<Option<std::time::Instant>>,
 }
 pub(crate) fn report(app: &tauri::AppHandle, error: String) {
     if let Some(state) = app.try_state::<AppState>() {
@@ -138,6 +146,14 @@ fn hide_choices(app: tauri::AppHandle) -> Result<()> {
     choices::hide(&app)
 }
 #[tauri::command]
+fn get_choice_group(app: tauri::AppHandle) -> Result<choices::Group> {
+    choices::group(&app)
+}
+#[tauri::command]
+fn set_choice_group(app: tauri::AppHandle, group: choices::Group) -> Result<()> {
+    choices::select_group(&app, group)
+}
+#[tauri::command]
 fn prepare_scene(app: tauri::AppHandle, window: tauri::WebviewWindow) -> Result<choices::Metrics> {
     choices::prepare(&app, &window)
 }
@@ -226,6 +242,7 @@ pub fn run() {
                 mask_ready: AtomicBool::new(false),
                 initialized: AtomicBool::new(false),
                 choices_open: AtomicBool::new(false),
+                choices_group: Mutex::new(choices::Group::Main),
                 panel_request: Mutex::new(choices::Request::default()),
                 move_generation: AtomicU64::new(0),
                 dvd_enabled: AtomicBool::new(false),
@@ -234,6 +251,9 @@ pub fn run() {
                 motion_pending: AtomicBool::new(false),
                 motion_context: AtomicBool::new(false),
                 motion: Mutex::new(motion::Motion::default()),
+                chess_active: AtomicBool::new(false),
+                chess_energy: AtomicU8::new(2),
+                chess_roam: Mutex::new(None),
             });
             // WebViews can pump IPC during construction. Register state first,
             // explicitly create the windows, then release the UI startup gate.
@@ -244,6 +264,11 @@ pub fn run() {
                 tauri::WebviewWindowBuilder::from_config(app, &config)?.build()?;
             }
             tray::install(app.handle())?;
+            if let Err(error) =
+                chess::Store::recover(&app.state::<AppState>().root.join("chess.json"))
+            {
+                report(app.handle(), error);
+            }
             if let Err(e) = overlay::restore(app.handle()) {
                 report(app.handle(), e);
             }
@@ -269,6 +294,8 @@ pub fn run() {
                 api.prevent_close();
                 if window.label() == "mascot" {
                     tray::hide(window.app_handle());
+                } else if window.label() == "chess" {
+                    let _ = window.emit("chess-close-request", ());
                 } else if window.label() == "choices" {
                     if let Err(e) = choices::hide(window.app_handle()) {
                         report(window.app_handle(), e);
@@ -284,7 +311,7 @@ pub fn run() {
                     }
                     // DVD ticks are transient; never spawn a save thread or write
                     // personal storage for each animation frame. Save on stop/tray/quit.
-                    if state.dvd_enabled.load(Ordering::SeqCst) {
+                    if state.dvd_enabled.load(Ordering::SeqCst) || motion::chess_burst(&state) {
                         return;
                     }
                     let generation = state.move_generation.fetch_add(1, Ordering::SeqCst) + 1;
@@ -326,6 +353,19 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             startup_ready,
+            todo_commands::todo_state,
+            todo_commands::edit_todo,
+            todo_commands::open_todo,
+            todo_commands::close_todo,
+            chess_commands::chess_store,
+            chess_commands::save_chess_settings,
+            chess_commands::begin_chess,
+            chess_commands::chess_progress,
+            chess_commands::finish_chess,
+            chess_commands::export_chess,
+            chess_commands::open_chess,
+            chess_commands::hide_chess,
+            chess_commands::chess_react,
             get_mode,
             set_mode,
             motion_hover,
@@ -337,6 +377,8 @@ pub fn run() {
             panel_request,
             return_to_choices,
             hide_choices,
+            get_choice_group,
+            set_choice_group,
             prepare_scene,
             hide_panel,
             start_drag,

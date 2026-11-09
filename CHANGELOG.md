@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.0.3
+
+- Lock In submenu groups Habit Tracker, Motivation, and To-Do List, with directional arrows, Back, and preserved return context.
+- Local To-Do table with completion, editable tasks, date/time deadlines, hour/minute estimates, stable IDs, and independent atomic JSON storage.
+- Per-row colors from 12 presets or a custom hue/saturation wheel, brightness/sliders/hex input, and readable foreground colors.
+- Consistent chess label capitalization and distributed mascot choices with room for native window/DPI rounding; screen edges retain the compact column fallback.
+- Renamed Other… to Settings and added Play Chess Game in the mascot menu.
+- Offline Stockfish 19 Lite opponent in a separate chess window, with player color, timers/increments, and three Helper energy levels.
+- Separate Adaptive/Preset Elo settings, configurable per-win gains and per-loss reductions, beginner practice levels, and fixed game-start difficulty.
+- Local five-game PGN history, per-move safe saves, interrupted-game recovery as abandoned, and Downloads exports without overwriting files.
+- Mascot game reactions, celebrations, energetic desktop bouncing, and locally written commentary, without habit-tracker connections.
+- Chess rules/clock/real-engine/storage tests and bundled third-party notices; project license decision remains pending.
+
 ## 0.0.2
 
 - Normal/DVD mode slider in Other…; optional native diagonal gliding with edge/corner bounces, interaction pauses, and no storage writes per animation frame.

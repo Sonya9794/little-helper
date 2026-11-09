@@ -12,3 +12,6 @@ Thumbs.db
 prompt-history.json
 habits.json
 window-position.json
+chess.json
+todo.json
+*.pgn

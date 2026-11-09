@@ -72,6 +72,19 @@ pub fn mode(state: &AppState) -> Mode {
         Mode::Normal
     }
 }
+pub fn chess_burst(state: &AppState) -> bool {
+    state
+        .chess_roam
+        .lock()
+        .map(|until| until.is_some_and(|until| Instant::now() < until))
+        .unwrap_or(false)
+}
+fn active(state: &AppState) -> bool {
+    chess_burst(state)
+        || (mode(state) == Mode::Dvd
+            && (!state.chess_active.load(Ordering::SeqCst)
+                || state.chess_energy.load(Ordering::SeqCst) == 3))
+}
 pub fn set_mode(app: &AppHandle, mode: Mode) -> Result<()> {
     let state = app.state::<AppState>();
     let was_dvd = state.dvd_enabled.swap(mode == Mode::Dvd, Ordering::SeqCst);
@@ -128,7 +141,12 @@ pub fn start_drag(app: &AppHandle) -> Result<()> {
 
 fn tick(app: &AppHandle) -> Result<()> {
     let state = app.state::<AppState>();
-    if mode(&state) != Mode::Dvd {
+    if !active(&state) {
+        state
+            .motion
+            .lock()
+            .map_err(|_| "Motion lock failed")?
+            .pause();
         return Ok(());
     }
     if state.motion_dragging.load(Ordering::SeqCst) && drag_finished() {
@@ -148,6 +166,10 @@ fn tick(app: &AppHandle) -> Result<()> {
         || !state.mask_ready.load(Ordering::SeqCst)
         || !window.is_visible().map_err(|e| e.to_string())?
         || panel.is_visible().map_err(|e| e.to_string())?;
+    let blocked = blocked
+        || app
+            .get_webview_window("todo")
+            .is_some_and(|window| window.is_visible().unwrap_or(false));
     let mut motion = state
         .motion
         .lock()
@@ -181,8 +203,9 @@ fn tick(app: &AppHandle) -> Result<()> {
         flight.x = position.x as f64;
         flight.y = position.y as f64;
     }
-    flight.vx = flight.vx.signum() * 110.0 * scale;
-    flight.vy = flight.vy.signum() * 80.0 * scale;
+    let speed = if chess_burst(&state) { 2.5 } else { 1.0 };
+    flight.vx = flight.vx.signum() * 110.0 * scale * speed;
+    flight.vy = flight.vy.signum() * 80.0 * scale * speed;
     flight.advance(
         [
             area.position.x as f64,
@@ -194,7 +217,7 @@ fn tick(app: &AppHandle) -> Result<()> {
     );
     let target = PhysicalPosition::new(flight.x.round() as i32, flight.y.round() as i32);
     drop(motion);
-    if target != position && state.dvd_enabled.load(Ordering::SeqCst) {
+    if target != position && active(&state) {
         window.set_position(target).map_err(|e| e.to_string())?;
     }
     Ok(())
@@ -202,31 +225,41 @@ fn tick(app: &AppHandle) -> Result<()> {
 
 pub fn install(app: &AppHandle) {
     let app = app.clone();
-    std::thread::spawn(move || loop {
-        let state = app.state::<AppState>();
-        let active = mode(&state) == Mode::Dvd;
-        std::thread::sleep(Duration::from_millis(if active { 16 } else { 100 }));
-        if !active || state.motion_pending.swap(true, Ordering::SeqCst) {
-            continue;
-        }
-        let copy = app.clone();
-        if app
-            .run_on_main_thread(move || {
-                if let Err(error) = tick(&copy) {
+    std::thread::spawn(move || {
+        let mut was_active = false;
+        loop {
+            let state = app.state::<AppState>();
+            let moving = active(&state);
+            let stopping = was_active && !moving;
+            std::thread::sleep(Duration::from_millis(if moving { 16 } else { 100 }));
+            if (!moving && !stopping) || state.motion_pending.swap(true, Ordering::SeqCst) {
+                continue;
+            }
+            was_active = moving;
+            let copy = app.clone();
+            if app
+                .run_on_main_thread(move || {
+                    if stopping {
+                        if let Err(error) = overlay::save(&copy) {
+                            crate::report(&copy, error);
+                        }
+                    }
+                    if let Err(error) = tick(&copy) {
+                        copy.state::<AppState>()
+                            .dvd_enabled
+                            .store(false, Ordering::SeqCst);
+                        crate::report(&copy, error);
+                        let _ = copy.emit("mode-changed", Mode::Normal);
+                    }
                     copy.state::<AppState>()
-                        .dvd_enabled
+                        .motion_pending
                         .store(false, Ordering::SeqCst);
-                    crate::report(&copy, error);
-                    let _ = copy.emit("mode-changed", Mode::Normal);
-                }
-                copy.state::<AppState>()
-                    .motion_pending
-                    .store(false, Ordering::SeqCst);
-            })
-            .is_err()
-        {
-            state.motion_pending.store(false, Ordering::SeqCst);
-            break;
+                })
+                .is_err()
+            {
+                state.motion_pending.store(false, Ordering::SeqCst);
+                break;
+            }
         }
     });
 }

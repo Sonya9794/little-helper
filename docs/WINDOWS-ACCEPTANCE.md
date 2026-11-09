@@ -2,6 +2,9 @@
 
 Run automated checks first (`npm run check`, then `npm run build`). Record Windows version, display scales, monitor arrangement, commit, and results below. These are manual tests, not claims that CI or unit tests establish UI behavior.
 
+For the unreleased chess feature, also complete the [chess acceptance checks](CHESS.md#acceptance-checks).
+For Lock In and the new task table, complete the [To-Do acceptance checks](TODO.md#acceptance-checks).
+
 - [ ] Complete the [rounded-choice, hover-reaction, and Normal/DVD checks](ROUNDED-CHOICES.md) for version 0.0.2.
 - [ ] Launch `src-tauri/target/release/little-helper.exe` directly, outside the repository as well. No installer or development tools are needed; WebView2 must exist.
 - [ ] A small frameless mascot appears with no rectangular background. Place another normal application over/under it to verify it stays above normal windows.
@@ -11,7 +14,7 @@ Run automated checks first (`npm run check`, then `npm run build`). Record Windo
 - [ ] Drag to another monitor, including negative coordinates and a different DPI scale. Artwork and hit mask stay aligned. Test opaque and transparent pixels again after moving.
 - [ ] Quit via tray, relaunch, and verify position survives. Disconnect/rearrange the saved monitor, then launch/restore: the mascot stays reachable.
 - [ ] Open the panel at each screen edge. It chooses a fitting side, remains reachable within the work area, and permits scrolling/resizing if needed.
-- [ ] With no history file, the rounded choices show Other…, Habit Tracker, and Motivation. Other… explains how to save the first prompt. Saved-text choices appear after saving a prompt.
+- [ ] With no history file, main shows Settings, Lock In →, and Play Chess Game. Lock In replaces these with Habit Tracker, Motivation, To-Do List, and ← Back. Settings explains how to save the first prompt. Saved-text choices appear after saving a prompt.
 - [ ] Cancel prompt entry and confirm no record is created. Submit whitespace only and confirm rejection. Submit real text; latest/most common update immediately.
 - [ ] Submit `Read a book`, `  READ   a book  `, and `Chess`. The book group is most common and Chess is latest. Select Chess again: the tie goes to Chess, the newest use. Select a saved choice and inspect JSON to confirm another record is appended.
 - [ ] Submit more than 100 records (unit tests cover retention too), inspect `%APPDATA%\com.sonya9794.little-helper\prompt-history.json`, and verify only the most recent 100 remain.
@@ -23,7 +26,7 @@ Run automated checks first (`npm run check`, then `npm run build`). Record Windo
 - [ ] Test closed-across-midnight reset without changing the system clock: Quit, back up habits.json, change only its saved `date` to yesterday, leave some flags true, and relaunch. All checks reset, and names/IDs/order remain identical. Repeat with a future saved date to simulate a backward clock/time-zone date change.
 - [ ] Leave the tracker open over local midnight and verify flags reset. Sleep across midnight, resume, and open/focus the tracker; verify reset. These require real timing or a test machine; do not change your daily-use computer's clock unnecessarily.
 - [ ] Back up and deliberately corrupt a storage file with the app closed. Restart: a clear local error identifies the file. That file stays byte-for-byte unchanged after attempts to edit; the other feature still works. Restore the backup afterward.
-- [ ] Right-click an opaque mascot pixel, select Minimize to tray: the mascot, choices, and detail panel disappear. Tray Show restores the saved/reachable position and data. Tray Quit terminates the process.
+- [ ] Right-click an opaque mascot pixel, select Minimize to tray: the mascot, choices, detail panel, and chess window disappear. Tray Show restores the saved/reachable position, data, and any active chess game. Tray Quit terminates the process.
 - [ ] Launch a second executable instance: the existing instance restores, without competing writers or duplicate tray icons.
 - [ ] Run offline/disconnected and verify every pilot feature still works.
 

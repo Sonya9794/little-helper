@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Little Helper",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "identifier": "com.sonya9794.little-helper",
   "build": {
     "beforeDevCommand": "npm run web:dev",
@@ -12,13 +12,15 @@
   "app": {
     "macOSPrivateApi": true,
     "windows": [
+      { "label": "todo", "create": false, "title": "Little Helper To-Do List", "width": 680, "height": 480, "minWidth": 440, "minHeight": 300, "visible": false, "resizable": true, "alwaysOnTop": true, "skipTaskbar": true },
+      { "label": "chess", "create": false, "title": "Little Helper Chess", "width": 960, "height": 780, "minWidth": 600, "minHeight": 520, "center": true, "visible": false, "resizable": true },
       { "label": "choices", "create": false, "title": "Little Helper choices", "width": 552, "height": 330, "visible": false, "decorations": false, "transparent": true, "shadow": false, "resizable": false, "alwaysOnTop": true, "skipTaskbar": true },
       { "label": "mascot", "create": false, "title": "Little Helper", "width": 128, "height": 128, "visible": false, "decorations": false, "transparent": true, "shadow": false, "resizable": false, "alwaysOnTop": true, "skipTaskbar": true },
       { "label": "panel", "create": false, "title": "Little Helper", "url": "index.html?panel", "width": 360, "height": 490, "minWidth": 300, "minHeight": 320, "visible": false, "resizable": true, "alwaysOnTop": true, "skipTaskbar": true }
     ],
     "security": {
-      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'",
-      "devCsp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost http://127.0.0.1:1420 ws://127.0.0.1:1420; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'",
+      "devCsp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost http://127.0.0.1:1420 ws://127.0.0.1:1420; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
     }
   },
   "bundle": { "active": false, "icon": ["icons/icon.ico", "icons/icon.png"] }

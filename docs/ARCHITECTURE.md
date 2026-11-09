@@ -1,5 +1,9 @@
 # Architecture — 0.0.2
 
+Unreleased productivity UI adds `src/menu-model.ts` for the main/Lock In choice hierarchy, native `choices::Group` for cross-window return context, `src/todo-ui.ts` for the editable table, `src/todo-picker.ts` / `src/todo-colors.ts` for presets and custom color math, and `src-tauri/src/todo.rs` / `todo_commands.rs` for independently validated persistence and narrow window/CRUD commands. The ordinary To-Do window shares the native panel anchoring algorithm and pauses roaming while visible. It is independent of daily habit resets and chess. See [Lock In and To-Do](TODO.md).
+
+Unreleased chess adds `src/chess-ui.ts` (setup, board, logs), `src/chess-settings.ts` (Adaptive/Preset editor), `src/chess-game.ts` (rules/clock/game state), `src/chess-engine.ts` (local UCI worker), `src/chess-mascot.ts` (visual reactions), `src-tauri/src/chess.rs` (validated settings/PGN persistence and bounded export), and `src-tauri/src/chess_commands.rs` (narrow IPC/window lifecycle). Stockfish remains a separate unmodified worker served from bundled assets; no shell, executable-launch, general filesystem, or remote-service capability is introduced. Native motion receives bounded energy-3 reaction bursts; lower energy suspends DVD during a game. Chess does not read or modify habit data. See [chess behavior and acceptance](CHESS.md) and [third-party notices](../THIRD_PARTY_NOTICES.md).
+
 The packaged application is offline. It contains no HTTP client, provider SDK, OAuth, API keys, telemetry, screen capture, browser-reading, shell, app-launching, or arbitrary file-operation commands. Build tools and CI download development dependencies; that is separate from runtime behavior. Only bundled UI assets and narrow local Tauri IPC commands are allowed by the production CSP. No remote content is loaded into the WebViews.
 
 | Responsibility | Location |

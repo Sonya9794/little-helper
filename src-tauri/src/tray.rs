@@ -20,7 +20,15 @@ pub fn hide(app: &AppHandle) {
     app.state::<AppState>()
         .minimized
         .store(true, Ordering::SeqCst);
-    for label in ["mascot", "panel", "chess", "todo"] {
+    for label in [
+        "mascot",
+        "panel",
+        "chess",
+        "todo",
+        "blackjack",
+        "thought",
+        "timer",
+    ] {
         if let Some(w) = app.get_webview_window(label) {
             if let Err(e) = w.hide() {
                 crate::report(app, e.to_string());

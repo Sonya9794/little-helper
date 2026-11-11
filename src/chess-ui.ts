@@ -240,6 +240,7 @@ export async function chessUI(root: HTMLElement): Promise<void> {
   }
   function render(): void {
     root.replaceChildren(); const header = el('header'); header.append(el('h1', 'Little Helper Chess'), action('Close', requestClose)); root.append(header);
+    if (!game || (game.outcome !== 'in_progress' && finishedSaved)) root.append(action('← Back to Games', () => { void run(async () => { await invoke('hide_chess'); await invoke('set_choice_group', { group: 'games' }); }); }));
     if (error) {
       const alert = el('p', error, 'error'); alert.setAttribute('role', 'alert'); root.append(alert);
       root.append(action(game ? 'Retry engine / save' : 'Retry', () => { void run(async () => {

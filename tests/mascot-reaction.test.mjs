@@ -79,13 +79,29 @@ test('intense motion has bounded horizontal, vertical and rotational movement in
   }
   assert.ok(largestX > 8 && largestY > 5 && largestRotation > 0.08);
 });
-test('long shaking ends in an angry stationary stare for the same one-second duration', () => {
+test('angry stare lasts one second plus 0.8 times actual violent shaking time', () => {
   const reaction = new MascotReaction(); sustained(reaction, 3300);
   const now = 3300 + QUIET_MS;
   const frame = reaction.frame(now, false);
   assert.equal(frame.pose, 'staring'); assert.equal(frame.angry, true);
   assert.equal(frame.x, 0); assert.equal(frame.y, 0); assert.equal(frame.rotation, 0); assert.equal(frame.scale, 1);
-  assert.equal(reaction.frame(now + STARE_MS, false).pose, 'idle');
+  const violentStarted=2100;const duration=STARE_MS+0.8*(now-violentStarted);
+  assert.equal(frame.until,now+duration);
+  assert.equal(reaction.frame(frame.until-1,false).pose,'staring');
+  assert.equal(reaction.frame(frame.until,false).pose,'idle');
+});
+test('longer violent bouts scale anger proportionally without extending during the stare',()=>{
+  const a=new MascotReaction(),b=new MascotReaction();sustained(a,3300);sustained(b,6000);
+  const aEnd=3300+QUIET_MS,bEnd=6000+QUIET_MS;
+  const first=a.frame(aEnd,false),second=b.frame(bEnd,false);
+  assert.equal((second.until-bEnd)-(first.until-aEnd),0.8*(6000-3300));
+  assert.equal(b.frame(bEnd+500,false).until,second.until);
+  assert.equal(b.frame(bEnd,true).until,second.until);
+});
+test('reset clears a prolonged angry stare and a new short bout gets the normal stare',()=>{
+  const r=new MascotReaction();sustained(r,6000);assert.ok(r.frame(6000+QUIET_MS,false).until>8000);
+  r.reset();assert.equal(r.frame(6200,false).pose,'idle');sustained(r,6800,6500);
+  const end=6800+QUIET_MS;assert.equal(r.frame(end,false).angry,false);assert.equal(r.frame(end,false).until,end+STARE_MS);
 });
 test('separate short bouts do not accumulate toward escalation', () => {
   const reaction = new MascotReaction();

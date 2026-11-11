@@ -12,6 +12,9 @@
   "app": {
     "macOSPrivateApi": true,
     "windows": [
+      { "label": "timer", "create": false, "title": "Little Helper Timer", "width": 410, "height": 570, "minWidth": 320, "minHeight": 360, "visible": false, "resizable": true, "alwaysOnTop": true, "skipTaskbar": true },
+      { "label": "thought", "create": false, "title": "Little Helper Thought", "width": 96, "height": 96, "visible": false, "decorations": false, "transparent": true, "shadow": false, "resizable": false, "alwaysOnTop": true, "skipTaskbar": true, "focus": false },
+      { "label": "blackjack", "create": false, "title": "Little Helper Blackjack", "width": 660, "height": 700, "minWidth": 400, "minHeight": 420, "center": true, "visible": false, "resizable": true },
       { "label": "todo", "create": false, "title": "Little Helper To-Do List", "width": 680, "height": 480, "minWidth": 440, "minHeight": 300, "visible": false, "resizable": true, "alwaysOnTop": true, "skipTaskbar": true },
       { "label": "chess", "create": false, "title": "Little Helper Chess", "width": 960, "height": 780, "minWidth": 600, "minHeight": 520, "center": true, "visible": false, "resizable": true },
       { "label": "choices", "create": false, "title": "Little Helper choices", "width": 552, "height": 330, "visible": false, "decorations": false, "transparent": true, "shadow": false, "resizable": false, "alwaysOnTop": true, "skipTaskbar": true },

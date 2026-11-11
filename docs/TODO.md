@@ -1,6 +1,6 @@
 # Lock In and To-Do List
 
-The main mascot choices contain saved prompts (when available), Settings, **Lock In →**, and Play Chess Game. Lock In replaces those choices with Habit Tracker, Motivation, To-Do List, and **← Back**. These actions use the same around-the-mascot layout, with the existing compact column fallback at screen edges. Escape in Lock In returns to main; Escape in main dismisses the choices. Returning from a Lock In detail page or the To-Do window restores Lock In. A fresh mascot click after dismissal starts at main. The ordinary-panel macOS fallback follows the same hierarchy; its existing native mascot hit-testing limitation remains.
+The main mascot choices contain saved prompts (when available), Settings, **Lock In →**, and **Games →**. Games groups Chess and Blackjack. Lock In replaces those choices with Habit Tracker, Motivation, To-Do List, Timer, and **← Back**. These actions use the same around-the-mascot layout, with the existing compact column fallback at screen edges. Escape in Lock In returns to main; Escape in main dismisses the choices. Returning from a Lock In detail page or the To-Do window restores Lock In. A fresh mascot click after dismissal starts at main. The ordinary-panel macOS fallback follows the same hierarchy; its existing native mascot hit-testing limitation remains.
 
 To-Do List opens a compact, resizable window anchored beside the mascot and clamped to its monitor work area. Its table has completion, Task, Deadline, and Time Needed columns. Add a task below the table. Rename, change a deadline, or edit an estimate in place; Enter or leaving the field saves. Check/uncheck immediately. Delete removes that row; completed rows stay until explicitly deleted.
 
@@ -19,8 +19,8 @@ DVD/reaction roaming pauses while the To-Do window is visible. Tray minimization
 
 ## Acceptance checks
 
-- Main choices show Lock In with a right arrow. Selecting it removes main actions and presents Habit Tracker, Motivation, To-Do List, and a left-arrow Back choice. Back and Escape return to main. Verify both empty and nonempty prompt history.
-- Open Habit Tracker/Motivation and return: Lock In should reopen. Other existing Settings/chess actions remain reachable on main. Check distributed layout in the center and compact placement near all screen edges.
+- Main choices show Lock In with a right arrow. Selecting it removes main actions and presents Habit Tracker, Motivation, To-Do List, Timer, and a left-arrow Back choice. Back and Escape return to main. Verify both empty and nonempty prompt history.
+- Open Habit Tracker/Motivation and return: Lock In should reopen. Settings remains reachable on main; Chess is under Games. Check distributed layout in the center and compact placement near all screen edges.
 - Add tasks, rename, check/uncheck, delete, and reopen the table. Add-task input clears after success, while a new draft typed during saving is preserved. Deleted IDs are not reused.
 - Enter a date and time, edit it, and clear it. Enter 1 hour 35 minutes and verify 95 stored minutes; clear the estimate. Reject blank task names, invalid dates, negative/fractional hours, and minutes above 59 without changing saved data.
 - Open Color: count 12 presets. Apply a preset, use the actual color wheel, adjust brightness, and enter a custom hex color. Apply persists the chosen color; Cancel leaves it unchanged. Check readability on dark/light colors, including calendar icons and focus outlines. Use Tab and sliders with arrow keys.

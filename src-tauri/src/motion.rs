@@ -167,9 +167,10 @@ fn tick(app: &AppHandle) -> Result<()> {
         || !window.is_visible().map_err(|e| e.to_string())?
         || panel.is_visible().map_err(|e| e.to_string())?;
     let blocked = blocked
-        || app
-            .get_webview_window("todo")
-            .is_some_and(|window| window.is_visible().unwrap_or(false));
+        || ["todo", "blackjack", "timer"].iter().any(|label| {
+            app.get_webview_window(label)
+                .is_some_and(|window| window.is_visible().unwrap_or(false))
+        });
     let mut motion = state
         .motion
         .lock()

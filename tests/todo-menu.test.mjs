@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import { menuChoices } from '../src/menu-model.ts';
 import { PRESET_COLORS, hsvToHex, hexToHsv, wheelColor, rowInk, durationMinutes } from '../src/todo-colors.ts';
 test('main choices collapse productivity actions into Lock In with a right arrow',()=>{
-  const choices=menuChoices('main',null); assert.deepEqual(choices.map(c=>c.label),['Settings','Lock In','Play Chess Game']);
+  const choices=menuChoices('main',null); assert.deepEqual(choices.map(c=>c.label),['Settings','Lock In','Games']);
   assert.equal(choices[1].arrow,'right'); assert.deepEqual(choices[1].action,{type:'group',group:'lock_in'});
 });
 test('Lock In replaces the old choices and Back points to main in the opposite direction',()=>{
   const choices=menuChoices('lock_in',{most_common:'One',latest:'Two',count:2});
-  assert.deepEqual(choices.map(c=>c.label),['Habit Tracker','Motivation','To-Do List','Back']);
+  assert.deepEqual(choices.map(c=>c.label),['Habit Tracker','Motivation','To-Do List','Timer','Back']);
   assert.equal(choices.at(-1).arrow,'left'); assert.deepEqual(choices.at(-1).action,{type:'group',group:'main'});
 });
 test('main prompt choices retain full text and original order',()=>{

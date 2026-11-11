@@ -10,6 +10,7 @@ export class MascotReaction {
   private shakeStarted = -Infinity;
   private lastGesture = -Infinity;
   private intense = false;
+  private violentStarted = -Infinity;
 
   move(x: number, y: number, now: number): void {
     let previous = this.points.at(-1);
@@ -35,21 +36,25 @@ export class MascotReaction {
       if (now >= this.shakeUntil) {
         this.shakeStarted = now;
         this.intense = false;
+        this.violentStarted = -Infinity;
       } else if (now - this.lastGesture > QUIET_MS) {
         // Ordinary movement between wiggles does not count toward escalation.
         this.shakeStarted = now;
       }
       if (gesture) {
         this.lastGesture = now;
-        if (now - this.shakeStarted > ESCALATE_MS) this.intense = true;
+        if (!this.intense && now - this.shakeStarted > ESCALATE_MS) {
+          this.intense = true; this.violentStarted = now;
+        }
       }
       this.shakeUntil = now + QUIET_MS;
-      this.stareUntil = this.shakeUntil + STARE_MS;
+      const violentDuration = this.intense ? Math.max(0,this.shakeUntil-this.violentStarted) : 0;
+      this.stareUntil = this.shakeUntil + STARE_MS + 0.8*violentDuration;
     }
   }
   reset(): void {
     this.points = []; this.shakeUntil = -Infinity; this.stareUntil = -Infinity;
-    this.shakeStarted = -Infinity; this.lastGesture = -Infinity; this.intense = false;
+    this.shakeStarted = -Infinity; this.lastGesture = -Infinity; this.intense = false; this.violentStarted = -Infinity;
   }
   frame(now: number, reducedMotion: boolean): { pose: 'idle' | 'shaking' | 'staring'; x: number; y: number; rotation: number; scale: number; angry: boolean; until: number } {
     const still = { x: 0, y: 0, rotation: 0, scale: 1 };

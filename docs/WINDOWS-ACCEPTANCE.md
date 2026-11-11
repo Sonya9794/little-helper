@@ -3,6 +3,9 @@
 Run automated checks first (`npm run check`, then `npm run build`). Record Windows version, display scales, monitor arrangement, commit, and results below. These are manual tests, not claims that CI or unit tests establish UI behavior.
 
 For the unreleased chess feature, also complete the [chess acceptance checks](CHESS.md#acceptance-checks).
+For the new Lock In timer, complete the [Timer acceptance checks](TIMER.md#manual-windows-checks).
+For collapsible Settings and thought bubbles, complete the [Helper Thoughts checks](HELPER-THOUGHTS.md#manual-windows-checks).
+For Games and Blackjack, complete the [Blackjack acceptance checks](BLACKJACK.md#manual-windows-acceptance).
 For Lock In and the new task table, complete the [To-Do acceptance checks](TODO.md#acceptance-checks).
 
 - [ ] Complete the [rounded-choice, hover-reaction, and Normal/DVD checks](ROUNDED-CHOICES.md) for version 0.0.2.
@@ -14,7 +17,7 @@ For Lock In and the new task table, complete the [To-Do acceptance checks](TODO.
 - [ ] Drag to another monitor, including negative coordinates and a different DPI scale. Artwork and hit mask stay aligned. Test opaque and transparent pixels again after moving.
 - [ ] Quit via tray, relaunch, and verify position survives. Disconnect/rearrange the saved monitor, then launch/restore: the mascot stays reachable.
 - [ ] Open the panel at each screen edge. It chooses a fitting side, remains reachable within the work area, and permits scrolling/resizing if needed.
-- [ ] With no history file, main shows Settings, Lock In →, and Play Chess Game. Lock In replaces these with Habit Tracker, Motivation, To-Do List, and ← Back. Settings explains how to save the first prompt. Saved-text choices appear after saving a prompt.
+- [ ] With no history file, main shows Settings, Lock In →, and Games →. Games opens Chess, Blackjack, and ← Back. Lock In replaces these with Habit Tracker, Motivation, To-Do List, Timer, and ← Back. Settings explains how to save the first prompt. Saved-text choices appear after saving a prompt.
 - [ ] Cancel prompt entry and confirm no record is created. Submit whitespace only and confirm rejection. Submit real text; latest/most common update immediately.
 - [ ] Submit `Read a book`, `  READ   a book  `, and `Chess`. The book group is most common and Chess is latest. Select Chess again: the tie goes to Chess, the newest use. Select a saved choice and inspect JSON to confirm another record is appended.
 - [ ] Submit more than 100 records (unit tests cover retention too), inspect `%APPDATA%\com.sonya9794.little-helper\prompt-history.json`, and verify only the most recent 100 remain.

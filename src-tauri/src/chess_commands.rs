@@ -1,6 +1,5 @@
 use crate::{
     chess::{self, Game, Options, Outcome, Settings, Store},
-    choices, overlay,
     storage::Result,
     AppState,
 };
@@ -66,41 +65,7 @@ pub fn export_chess(app: AppHandle, id: u64) -> Result<String> {
 }
 #[tauri::command]
 pub fn open_chess(app: AppHandle) -> Result<()> {
-    choices::hide(&app)?;
-    app.get_webview_window("panel")
-        .ok_or("Panel missing")?
-        .hide()
-        .map_err(|e| e.to_string())?;
-    let window = app
-        .get_webview_window("chess")
-        .ok_or("Chess window missing")?;
-    choices::restore_window(&window)?;
-    if let Some(monitor) = window.current_monitor().map_err(|e| e.to_string())? {
-        let area = monitor.work_area();
-        let outer = window.outer_size().map_err(|e| e.to_string())?;
-        if outer.width > area.size.width || outer.height > area.size.height {
-            let inner = window.inner_size().map_err(|e| e.to_string())?;
-            window
-                .set_size(tauri::PhysicalSize::new(
-                    inner
-                        .width
-                        .saturating_sub(outer.width.saturating_sub(area.size.width))
-                        .max(1),
-                    inner
-                        .height
-                        .saturating_sub(outer.height.saturating_sub(area.size.height))
-                        .max(1),
-                ))
-                .map_err(|e| e.to_string())?;
-        }
-    }
-    let point = window.outer_position().map_err(|e| e.to_string())?;
-    let size = window.outer_size().map_err(|e| e.to_string())?;
-    window
-        .set_position(overlay::reachable(&window, point, size)?)
-        .map_err(|e| e.to_string())?;
-    window.show().map_err(|e| e.to_string())?;
-    window.set_focus().map_err(|e| e.to_string())
+    crate::games::open(&app, "chess")
 }
 #[tauri::command]
 pub fn hide_chess(app: AppHandle) -> Result<()> {

@@ -2,12 +2,16 @@ mod chess;
 mod chess_commands;
 mod choices;
 mod execution;
+mod games;
 mod habits;
 mod history;
 mod hit_test;
 mod motion;
 mod overlay;
 mod storage;
+mod thoughts;
+mod timer;
+mod timer_commands;
 mod todo;
 mod todo_commands;
 mod tray;
@@ -44,6 +48,9 @@ pub(crate) struct AppState {
     chess_active: AtomicBool,
     chess_energy: AtomicU8,
     chess_roam: Mutex<Option<std::time::Instant>>,
+    thoughts: Mutex<thoughts::Runtime>,
+    thought_tick_pending: AtomicBool,
+    timer: Mutex<timer::Clock>,
 }
 pub(crate) fn report(app: &tauri::AppHandle, error: String) {
     if let Some(state) = app.try_state::<AppState>() {
@@ -195,22 +202,49 @@ fn install_mask(
     width: u32,
     height: u32,
     alpha: Vec<u8>,
+    mirror_x: Option<bool>,
 ) -> Result<()> {
-    if !["mascot", "choices"].contains(&window.label()) {
+    if !["mascot", "choices", "thought"].contains(&window.label()) {
         return Err("Not an overlay window".into());
     }
-    if let Some(warning) = hit_test::install(&window, width, height, &alpha)? {
-        report(&app, warning);
+    #[cfg(not(target_os = "windows"))]
+    let ordinary_thought = window.label() == "thought";
+    #[cfg(target_os = "windows")]
+    let ordinary_thought = false;
+    if !ordinary_thought {
+        if let Some(warning) = hit_test::install(&window, width, height, &alpha)? {
+            report(&app, warning);
+        }
     }
     let state = app.state::<AppState>();
     if window.label() == "mascot" {
         state.mask_ready.store(true, Ordering::SeqCst);
     }
-    let should_show = window.label() == "mascot" || state.choices_open.load(Ordering::SeqCst);
+    let should_show = if window.label() == "thought" {
+        let active = thoughts::follow(&app)?;
+        let side = state
+            .thoughts
+            .lock()
+            .map_err(|_| "Thought state lock failed")?
+            .mirror_x;
+        if mirror_x != Some(side) {
+            return Err("Thought side changed; repaint its input mask.".into());
+        }
+        active
+    } else {
+        window.label() == "mascot" || state.choices_open.load(Ordering::SeqCst)
+    };
     if should_show && !state.minimized.load(Ordering::SeqCst) {
         let was_visible = window.is_visible().map_err(|e| e.to_string())?;
         if !was_visible {
             window.show().map_err(|e| e.to_string())?;
+            if window.label() == "thought" {
+                state
+                    .thoughts
+                    .lock()
+                    .map_err(|_| "Thought state lock failed")?
+                    .shown(std::time::Instant::now());
+            }
         }
         if window.label() == "choices" && !was_visible {
             window.set_focus().map_err(|e| e.to_string())?;
@@ -254,16 +288,34 @@ pub fn run() {
                 chess_active: AtomicBool::new(false),
                 chess_energy: AtomicU8::new(2),
                 chess_roam: Mutex::new(None),
+                thoughts: Mutex::new(thoughts::Runtime::default()),
+                thought_tick_pending: AtomicBool::new(false),
+                timer: Mutex::new(timer::Clock::default()),
             });
             // WebViews can pump IPC during construction. Register state first,
             // explicitly create the windows, then release the UI startup gate.
-            for config in app.config().app.windows.clone() {
+            for mut config in app.config().app.windows.clone() {
+                if config.label == "thought" && !cfg!(target_os = "windows") {
+                    config.decorations = true;
+                    config.transparent = false;
+                }
                 if config.label == "choices" && !cfg!(target_os = "windows") {
                     continue;
                 }
                 tauri::WebviewWindowBuilder::from_config(app, &config)?.build()?;
             }
             tray::install(app.handle())?;
+            match thoughts::Settings::load(
+                &app.state::<AppState>().root.join("helper-thoughts.json"),
+            ) {
+                Ok(settings) => app
+                    .state::<AppState>()
+                    .thoughts
+                    .lock()
+                    .map_err(|_| "Thought state lock failed")?
+                    .configure(settings),
+                Err(error) => report(app.handle(), error),
+            }
             if let Err(error) =
                 chess::Store::recover(&app.state::<AppState>().root.join("chess.json"))
             {
@@ -281,6 +333,7 @@ pub fn run() {
                 report(app.handle(), e);
             }
             state.initialized.store(true, Ordering::SeqCst);
+            thoughts::install(app.handle());
             motion::install(app.handle());
             Ok(())
         })
@@ -294,6 +347,10 @@ pub fn run() {
                 api.prevent_close();
                 if window.label() == "mascot" {
                     tray::hide(window.app_handle());
+                } else if window.label() == "thought" {
+                    if let Err(error) = thoughts::dismiss_thought(window.app_handle().clone()) {
+                        report(window.app_handle(), error);
+                    }
                 } else if window.label() == "chess" {
                     let _ = window.emit("chess-close-request", ());
                 } else if window.label() == "choices" {
@@ -305,6 +362,9 @@ pub fn run() {
                 }
             }
             tauri::WindowEvent::Moved(_) if window.label() == "mascot" => {
+                if let Err(error) = thoughts::follow(window.app_handle()) {
+                    report(window.app_handle(), error);
+                }
                 if let Some(state) = window.app_handle().try_state::<AppState>() {
                     if !state.initialized.load(Ordering::SeqCst) {
                         return;
@@ -346,6 +406,10 @@ pub fn run() {
                 let _ = window.hide();
                 let _ = window.emit("choices-refresh", ());
             }
+            tauri::WindowEvent::ScaleFactorChanged { .. } if window.label() == "thought" => {
+                let _ = window.hide();
+                let _ = window.emit("thoughts-changed", ());
+            }
             tauri::WindowEvent::Focused(true) => {
                 let _ = window.emit("date-check", ());
             }
@@ -353,6 +417,21 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             startup_ready,
+            timer_commands::timer_state,
+            timer_commands::start_timer,
+            timer_commands::pause_timer,
+            timer_commands::resume_timer,
+            timer_commands::reset_timer,
+            timer_commands::open_timer,
+            timer_commands::close_timer,
+            thoughts::thought_settings,
+            thoughts::size_thought,
+            thoughts::save_thought_settings,
+            thoughts::thought_poll,
+            thoughts::reveal_thought,
+            thoughts::dismiss_thought,
+            games::open_blackjack,
+            games::close_blackjack,
             todo_commands::todo_state,
             todo_commands::edit_todo,
             todo_commands::open_todo,

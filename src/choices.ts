@@ -13,12 +13,12 @@ export async function choices(root: HTMLElement): Promise<void> {
     if (action.type === 'saved') { await invoke('submit_prompt',{text:action.text}); return invoke('open_detail',{page:'saved',text:action.text}); }
     if (action.type === 'page') return invoke('open_detail',{page:action.page,text:null});
     if (action.type === 'group') return invoke('set_choice_group',{group:action.group});
-    return invoke(action.type === 'chess' ? 'open_chess' : 'open_todo');
+    return invoke(action.type === 'chess' ? 'open_chess' : action.type === 'blackjack' ? 'open_blackjack' : action.type === 'timer' ? 'open_timer' : 'open_todo');
   }
   async function draw(): Promise<void> {
     if (drawing) { queued = true; return; } drawing = true;
     try {
-      const [data, nextGroup] = await Promise.all([invoke<Snapshot>('snapshot'), invoke<'main' | 'lock_in'>('get_choice_group')]); group = nextGroup;
+      const [data, nextGroup] = await Promise.all([invoke<Snapshot>('snapshot'), invoke<ChoiceGroup>('get_choice_group')]); group = nextGroup;
       root.querySelectorAll('button').forEach(node => node.remove());
       const actions = menuChoices(group, data.history);
       const buttons: HTMLButtonElement[] = [];
@@ -56,6 +56,6 @@ export async function choices(root: HTMLElement): Promise<void> {
   }
   await listen('choices-refresh', () => { void draw(); });
   window.addEventListener('resize', () => { void draw(); });
-  document.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); void invoke(group === 'lock_in' ? 'set_choice_group' : 'hide_choices', group === 'lock_in' ? { group: 'main' } : undefined); } });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); void invoke(group !== 'main' ? 'set_choice_group' : 'hide_choices', group !== 'main' ? { group: 'main' } : undefined); } });
   await draw();
 }

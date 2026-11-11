@@ -1,4 +1,62 @@
 :root { font-family: system-ui, sans-serif; color: #243d4c; background: transparent; font-size: 14px; color-scheme: light; }
+body.timer { background: #faf8f2; }
+.timer #app { padding: 16px; max-width: 640px; margin: auto; }
+.timer-modes { display: flex; flex-wrap: wrap; gap: 12px; border: 1px solid #cbd5ce; border-radius: 10px; }
+.timer-modes label { display: flex; gap: 5px; align-items: center; }
+.timer-display { text-align: center; border-radius: 14px; background: #e9f1eb; padding: 14px 8px; margin: 14px 0; }
+#timer-clock { font-size: clamp(30px,8vw,46px); font-variant-numeric: tabular-nums; font-weight: 650; }
+#timer-status { margin: 5px 0; min-height: 20px; }
+.timer-fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(125px,1fr)); gap: 10px; border: 1px solid #cbd5ce; border-radius: 10px; }
+.timer-fields label { display: grid; gap: 5px; }
+.timer-fields input { width: 100%; padding: 6px; }
+.timer-fields-normal { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.timer-fields-stopwatch { display: block; }
+.timer-controls { display: flex; gap: 8px; margin: 12px 0; }
+body.thought, .thought #app { width: 100vw; height: 100vh; overflow: hidden; background: transparent; }
+.thought canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.thought-reveal { position: absolute; left: 10px; top: 12px; width: 76px; height: 56px; padding: 0; border: 0; border-radius: 50%; background: transparent; font-size: 28px; }
+.thought-reveal:hover:not(:disabled) { background: transparent; }
+.thought-mirrored .thought-reveal { left: auto; right: 10px; }
+.thought-message { position: absolute; left: 22px; top: 18px; width: max-content; max-width: 236px; margin: 0; font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }
+.thought-pop { position: absolute; min-height: 25px; padding: 2px 8px; font-size: 12px; }
+.settings-section { border: 1px solid #cbd5ce; border-radius: 10px; margin: 12px 0; padding: 10px; }
+.settings-section > summary { font-weight: 650; cursor: pointer; padding: 3px; }
+.thought-toggles { display: grid; gap: 10px; margin: 12px 0; }
+.thought-toggles label { display: flex; align-items: center; gap: 8px; }
+.thought-master { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
+.thought-options { min-width: 0; border: 1px solid #cbd5ce; border-radius: 8px; padding: 10px; }
+.thought-options:disabled { opacity: .48; }
+.thought-interval > p:first-child { margin: 3px 0 6px; font-weight: 600; }
+.thought-interval output { display: block; font-size: 12px; }
+.thought-dual-slider { position: relative; height: 38px; touch-action: none; user-select: none; }
+.thought-range-track { position: absolute; left: 10px; right: 10px; height: 4px; top: 17px; background: #cbd5ce; border-radius: 4px; }
+.thought-range-fill { position: absolute; height: 100%; background: #327d68; border-radius: inherit; }
+.thought-dual-input { position: absolute; left: 2px; top: 3px; width: calc(100% - 4px); height: 32px; padding: 0; margin: 0; border: 0; background: transparent; pointer-events: none; appearance: none; -webkit-appearance: none; }
+.thought-dual-input::-webkit-slider-runnable-track { height: 4px; background: transparent; }
+.thought-dual-input::-webkit-slider-thumb { width: 16px; height: 16px; margin-top: -6px; appearance: none; -webkit-appearance: none; border: 2px solid #327d68; border-radius: 50%; background: #fffdf5; }
+.thought-dual-input:focus-visible { outline: none; z-index: 2; }
+.thought-dual-input:focus-visible::-webkit-slider-thumb { outline: 3px solid #2464ba; outline-offset: 2px; }
+.thought-options:disabled .thought-dual-slider { cursor: default; }
+body.blackjack { background: #faf8f2; }
+.blackjack #app { padding: 18px; max-width: 900px; margin: auto; }
+.blackjack-summary { display: flex; flex-wrap: wrap; gap: 12px 28px; margin: 14px 0; }
+.blackjack-table { background: #18533f; border: 2px solid #bfa76b; border-radius: 22px; padding: 12px 20px; color: #fffdf5; }
+.blackjack-hand h2 { margin-top: 6px; }
+.blackjack-hand + .blackjack-hand { border-top: 1px solid #79a293; padding-top: 10px; }
+.blackjack-table .muted { color: #e4eee8; }
+.blackjack-cards { display: flex; flex-wrap: wrap; gap: 8px; min-height: 80px; }
+.playing-card { display: flex; align-items: center; justify-content: center; width: 56px; height: 78px; border-radius: 7px; background: #fffdf5; border: 1px solid #d7d3c7; color: #182d38; font-size: 25px; font-weight: 700; }
+.playing-card.card-red { color: #b72036; }
+.playing-card.card-hidden { background: #294c74; color: #fff; border: 2px dashed #dbe5fa; }
+.hand-total { margin: 7px 0 12px; }
+.blackjack-result { font-weight: 700; min-height: 21px; }
+.blackjack-controls, .blackjack-controls form { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin: 12px 0; }
+.blackjack-controls label { display: grid; gap: 5px; }
+.blackjack-controls input { width: 120px; padding: 7px; }
+.blackjack-reset { border: 1px solid #8b9d9f; border-radius: 10px; padding: 12px; margin: 12px 0; }
+.blackjack-reset button { margin-right: 8px; }
+.blackjack details { margin-top: 16px; }
+.blackjack summary { cursor: pointer; padding: 5px 0; }
 * { box-sizing: border-box; }
 body { margin: 0; }
 body.mascot, .mascot #app { width: 100vw; height: 100vh; overflow: hidden; background: transparent; user-select: none; }

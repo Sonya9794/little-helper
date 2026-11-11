@@ -2,6 +2,6 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "local-ui",
   "description": "Local windows may receive app events; all mutations use narrow Rust commands.",
-  "windows": ["mascot", "panel", "choices", "chess", "todo"],
+  "windows": ["mascot", "panel", "choices", "chess", "todo", "blackjack", "thought", "timer"],
   "permissions": ["core:event:allow-listen", "core:event:allow-unlisten"]
 }

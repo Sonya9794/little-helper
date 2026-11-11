@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- Lock In Timer with Normal countdown, configurable Pomodoro work/break/decrease/rounds, Stopwatch, pause/resume/reset, and a native session clock.
+- One two-handle Helper Thoughts interval slider from 1–30 minutes, fixed intervals when handles meet, saved preferences with legacy defaults, and disabled/grayed options when the master toggle is off.
+- Bring thought bubbles roughly halfway closer using transparent edge padding, preserving the higher anchor and mirrored alpha hit testing.
+- Angry stare duration is one second plus 0.8 times the actual violent-shaking duration; calm stares remain one second.
+- Size thought clouds to measured content, raise their tail anchor toward the upper body, and rename the message action to Pop.
+
+- Reflect left-side thought bubbles and their click targets so they stay close to the sprite; add top-edge bubble clearance without moving Little Helper, and synchronize redraws with native input masks.
+
+- Ignored mini thought bubbles expire two minutes after first appearing and restart the random wait; clicking reveals a message that remains until dismissed.
+
+- Helper Thoughts: optional local jokes, fun facts, and encouragement in an independent alpha-hit-tested bubble, with native random 3–10 minute waits, linked movement, category toggles, and safe local preferences.
+- Collapsible Settings sections, with Save a Prompt initially closed and Chess Edit opening its section automatically.
+- Games submenu groups Chess and Blackjack with directional arrows and Back; main actions are replaced while it is open.
+- Offline session-based Blackjack with 1,000 play-money chips, Hit/Stand/Double, a fresh single deck each round, dealer standing on soft 17, and 3:2 natural payouts.
+- Shared native game-window placement, Blackjack tray hiding and navigation, and focused Blackjack rule/payout tests. No new dependencies or Blackjack storage files.
+
 ## 0.0.3
 
 - Lock In submenu groups Habit Tracker, Motivation, and To-Do List, with directional arrows, Back, and preserved return context.

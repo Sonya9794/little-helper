@@ -4,7 +4,9 @@ import { habitTracker } from './habits';
 import { randomQuote } from './motivation';
 import { chessSettings } from './chess-settings';
 import type { ChessStore } from './chess-api';
-interface Request { page: 'menu' | 'prompt' | 'saved' | 'habits' | 'motivation' | 'lock_in'; text: string | null; revision: number }
+import { thoughtSettingsUI } from './thought-settings';
+import type { ThoughtSettings } from './thought-model';
+interface Request { page: 'menu' | 'prompt' | 'saved' | 'habits' | 'motivation' | 'lock_in' | 'games'; text: string | null; revision: number }
 
 export async function panel(root: HTMLElement): Promise<void> {
   document.body.classList.add('panel');
@@ -14,13 +16,20 @@ export async function panel(root: HTMLElement): Promise<void> {
   let mode: Mode = 'normal';
   let promptDraft = '';
   let chessData: ChessStore | null = null, chessError = '';
+  let thoughts: ThoughtSettings | null = null, thoughtError = '';
+  const expanded = new Map<string,boolean>();
+  function fold(title: string, key: string, content: HTMLElement): HTMLDetailsElement {
+    const details=el('details',undefined,'settings-section');details.dataset.section=key;details.open=expanded.get(key)??false;
+    details.append(el('summary',title),content);details.ontoggle=()=>{expanded.set(key,details.open);};return details;
+  }
   let error = ''; let status = ''; let busy = false;
   let queue: Promise<void> = Promise.resolve(); let pending = 0;
-  const back = () => { void perform(() => invoke(view === 'lock_in' ? 'set_choice_group' : 'return_to_choices', view === 'lock_in' ? { group: 'main' } : undefined)); };
+  const back = () => { void perform(() => invoke(view === 'lock_in' || view === 'games' ? 'set_choice_group' : 'return_to_choices', view === 'lock_in' || view === 'games' ? { group: 'main' } : undefined)); };
   function applyRequest(request: Request): void {
     if (request.revision === revision) return;
     revision = request.revision; view = request.page; selectedText = request.text ?? '';
     if (view === 'prompt') promptDraft = '';
+    if (view === 'prompt' && request.text === 'chess') expanded.set('chess',true);
     if (view === 'motivation') quote = randomQuote();
     error = ''; status = ''; render();
     root.querySelector<HTMLElement>(view === 'prompt' && request.text === 'chess' ? '#chess-elo' : 'textarea, section input, section button')?.focus();
@@ -30,7 +39,8 @@ export async function panel(root: HTMLElement): Promise<void> {
     const key = previous?.dataset.focus;
     const draft = preserveDraft && previous && (previous.tagName === 'TEXTAREA' || (previous.tagName === 'INPUT' && previous.type === 'text')) ? previous.value : null;
     const chess = invoke<ChessStore>('chess_store').then(value => { chessData = value; chessError = ''; }).catch(cause => { chessData = null; chessError = String(cause); });
-    [data, mode] = await Promise.all([invoke<Snapshot>('snapshot'), invoke<Mode>('get_mode'), chess]); render();
+    const thought = invoke<ThoughtSettings>('thought_settings').then(value=>{thoughts=value;thoughtError='';}).catch(cause=>{thoughts=null;thoughtError=String(cause);});
+    [data, mode] = await Promise.all([invoke<Snapshot>('snapshot'), invoke<Mode>('get_mode'), chess, thought]); render();
     if (key) {
       const next = root.querySelector<HTMLInputElement>(`[data-focus="${CSS.escape(key)}"]`);
       if (next) { if (draft !== null) next.value = draft; next.focus(); }
@@ -51,7 +61,7 @@ export async function panel(root: HTMLElement): Promise<void> {
     root.replaceChildren();
     const header = el('header'); const title = el('div'); title.append(el('h1', 'Little Helper'), el('p', 'Offline · Saved only on this computer', 'muted'));
     header.append(title, button('Close', () => { void perform(() => invoke('hide_panel')); }, 'close-panel')); root.append(header);
-    if (view !== 'menu') root.append(button(view === 'lock_in' ? '← Back' : view === 'habits' || view === 'motivation' ? '← Back to Lock In' : '← Back to choices', back, 'back'));
+    if (view !== 'menu') root.append(button(view === 'lock_in' || view === 'games' ? '← Back' : view === 'habits' || view === 'motivation' ? '← Back to Lock In' : '← Back to choices', back, 'back'));
     if (error) { const alert = el('p', error, 'error'); alert.setAttribute('role', 'alert'); root.append(alert); }
     if (status) { const note = el('p', status, 'status'); note.setAttribute('role', 'status'); root.append(note); }
     for (const notice of data?.notices ?? []) root.append(el('p', notice, 'error'));
@@ -70,15 +80,21 @@ export async function panel(root: HTMLElement): Promise<void> {
       const other = button('Settings', () => { void perform(() => invoke('open_detail', { page: 'prompt', text: null })); }, 'settings');
       section.append(other,
         button('Lock In →', () => { void perform(() => invoke('set_choice_group', { group: 'lock_in' })); }, 'lock-in'),
-        button('Play Chess Game', () => { void perform(() => invoke('open_chess')); }, 'chess'));
+        button('Games →', () => { void perform(() => invoke('set_choice_group', { group: 'games' })); }, 'games'));
       root.append(section);
+    } else if (view === 'games') {
+      const section = el('section', undefined, 'menu'); section.append(el('h2', 'Games'),
+        button('Chess', () => { void perform(() => invoke('open_chess')); }, 'chess'),
+        button('Blackjack', () => { void perform(() => invoke('open_blackjack')); }, 'blackjack')); root.append(section);
     } else if (view === 'lock_in') {
       const section = el('section', undefined, 'menu'); section.append(el('h2', 'Lock In'),
         button('Habit Tracker', () => { void perform(() => invoke('open_detail', { page: 'habits', text: null })); }),
         button('Motivation', () => { void perform(() => invoke('open_detail', { page: 'motivation', text: null })); }),
-        button('To-Do List', () => { void perform(() => invoke('open_todo')); })); root.append(section);
+        button('To-Do List', () => { void perform(() => invoke('open_todo')); }),
+        button('Timer', () => { void perform(() => invoke('open_timer')); })); root.append(section);
     } else if (view === 'prompt') {
-      const section = el('section'); section.append(el('h2', 'Settings'), el('h3', 'Save a prompt'));
+      root.append(el('h2','Settings'));
+      const section = el('section');
       if (data.history_error) section.append(el('p', data.history_error, 'error'));
       else if (!data.history?.count) section.append(el('p', 'No saved prompts yet. Save your first prompt to add it to the choices around Little Helper.', 'muted'));
       const form = el('form'); const label = el('label', 'Prompt'); const input = el('textarea');
@@ -88,7 +104,7 @@ export async function panel(root: HTMLElement): Promise<void> {
       form.append(label, submit, button('Cancel', back));
       form.onsubmit = event => { event.preventDefault(); void perform(async () => { await invoke('submit_prompt', { text: input.value }); promptDraft = ''; await invoke('return_to_choices'); }); };
       input.onkeydown = event => { if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) { event.preventDefault(); form.requestSubmit(); } };
-      section.append(form); root.append(section);
+      section.append(form); root.append(fold('Save a Prompt','prompt',section));
       const settings = el('section', undefined, 'mode-section'); const heading = el('h2', 'Mode'); heading.id = 'mode-label';
       const row = el('div', undefined, 'mode-slider'); const slider = el('input');
       slider.type = 'range'; slider.min = '0'; slider.max = '1'; slider.step = '1'; slider.value = mode === 'dvd' ? '1' : '0';
@@ -101,9 +117,10 @@ export async function panel(root: HTMLElement): Promise<void> {
       };
       row.append(el('span', 'Normal'), slider, el('span', 'DVD'));
       settings.append(heading, row, el('p', 'DVD glides and bounces around this monitor. It pauses while you hover or use the menu. Close the panel and choices to watch it go.', 'muted'));
-      root.append(settings);
+      root.append(fold('Mode','mode',settings));
+      root.append(fold('Helper Thoughts','thoughts',thoughtSettingsUI(thoughts,thoughtError,next=>perform(()=>invoke('save_thought_settings',{settings:next})))));
       if (chessError) root.append(el('p', chessError, 'error'));
-      if (chessData) root.append(chessSettings(chessData.settings, async next => { chessData = await invoke<ChessStore>('save_chess_settings', { settings: next }); }));
+      if (chessData) root.append(fold('Chess Difficulty','chess',chessSettings(chessData.settings, async next => { chessData = await invoke<ChessStore>('save_chess_settings', { settings: next }); })));
     } else if (view === 'habits') {
       if (data.habit_error) root.append(el('p', data.habit_error, 'error'));
       if (data.habits) root.append(habitTracker(data.habits, edit => perform(() => invoke('edit_habit', { edit })), back));

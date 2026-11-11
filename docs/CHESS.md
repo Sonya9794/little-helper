@@ -1,6 +1,6 @@
 # Offline chess
 
-Open **Play Chess Game** from the mascot choices. A separate Little Helper Chess window opens; the browser is not used. Setup order is current difficulty (Edit opens Settings; Refresh changes appears afterward), player color, timer, Helper energy, recent logs, and Start game. Random chooses a color once at game start. Timers support untimed, preset minutes, or custom 1–180 minutes with 0–60 seconds increment per move.
+Open **Games → Chess** from the mascot choices. A separate Little Helper Chess window opens; the browser is not used. Setup order is current difficulty (Edit opens Settings; Refresh changes appears afterward), player color, timer, Helper energy, recent logs, and Start game. Random chooses a color once at game start. Timers support untimed, preset minutes, or custom 1–180 minutes with 0–60 seconds increment per move.
 
 ## Difficulty
 
@@ -37,7 +37,7 @@ The same sources and worker support Windows/macOS, but macOS compilation and vis
 
 ## Acceptance checks
 
-- Settings is named consistently in both menus. Play Chess Game opens a separate usable window, including on a short/high-DPI display.
+- Settings is named consistently in both menus. Chess opens a separate usable window, including on a short/high-DPI display.
 - Adaptive/Preset are side-by-side choices. Set different Elo values and gain/loss amounts; save, switch modes, reopen Settings, and verify all independent values survive restart. Reject out-of-range/empty values.
 - Edit in setup opens Settings at Chess difficulty. Refresh changes appears, and applying it updates the displayed target. Starting a game uses the current saved settings.
 - Play White, Black, and Random. Verify legal highlights, keyboard navigation, check, both castlings, en passant, all promotions, checkmate, draws, and engine replies. Invalid moves cannot change the board.
